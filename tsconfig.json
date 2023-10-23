@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
@@ -21,13 +23,18 @@
       "bun-types" // add Bun global
     ],
     // non bun init
-    // "plugins": [{ "name": "@kitajs/ts-html-plugin" }],
+    "plugins": [
+      {
+        "name": "@kitajs/ts-html-plugin"
+      }
+    ],
     "noUncheckedIndexedAccess": true,
     // "noUnusedLocals": true,
     // "noUnusedParameters": true,
     "exactOptionalPropertyTypes": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true
+    "noImplicitOverride": true,
     // "noImplicitReturns": true
+    "verbatimModuleSyntax": false
   }
 }
