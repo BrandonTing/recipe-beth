@@ -1,6 +1,5 @@
 import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
-import { config } from "./config";
 import {index} from "./pages";
 
 const app = new Elysia()
