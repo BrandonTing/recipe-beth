@@ -2,6 +2,31 @@
 
 a recipe app created with beth stack
 
+## Problem  
+- Hard to decide which meal to cook
+- Hard to estimate how much ingredients needed
+
+## Target Features
+
+### Form
+- Submit Recipes
+   - Ingredients List: can add as many ingredients
+   - Seasoning List
+   - Steps: Title, Explanation & Reference (image)
+     - Show Ingredients of Steps? 
+   - Reference link: original post
+   - Tags
+   - Estimated Time
+ 
+### List
+- Show recipes
+- Filter by ingredients, seasoning or tag(can filter with multiple conditions)
+
+### Recipe 
+- Show Recipe
+   - Toggle steps
+- Similar Recipes 
+
 ## This project was created using `create-beth-app`
 
 ## To open an issue: https://github.com/ethanniser/the-beth-stack
