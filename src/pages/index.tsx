@@ -10,7 +10,6 @@ export const index = new Elysia()
         <div class="flex flex-col items-center py-3">
           {/* TODO show recipe list */}
           rfwefwefwewefwefwefw
-
         </div>
       </BaseHtml>
     ));
