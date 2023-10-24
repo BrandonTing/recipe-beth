@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia,} from "elysia";
 import Table from "../components/table";
 
 export async function getRecipes () {
@@ -26,7 +26,7 @@ export async function getRecipes () {
 
 }
 
-export const list = new Elysia()
+export const list = new Elysia()  
   .get(
     "/list",
     getRecipes

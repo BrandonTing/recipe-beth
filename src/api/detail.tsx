@@ -1,6 +1,4 @@
 import { Elysia, t } from "elysia";
-import { ctx } from "../context";
-import Button from "../components/ui/button";
 
 export const detail = new Elysia()
   .get(
