@@ -1,4 +1,9 @@
 import { type PropsWithChildren } from "beth-stack/jsx";
+import { liveReloadScript } from "beth-stack/dev";
+import { config } from "../config";
+
+const safeScript =
+  config.env.NODE_ENV === "development" ? liveReloadScript() : "";
 
 export const BaseHtml = ({ children }: PropsWithChildren) => (
   <html>
@@ -9,6 +14,8 @@ export const BaseHtml = ({ children }: PropsWithChildren) => (
       <script src="https://unpkg.com/htmx.org@1.9.6"></script>
       <script src="https://unpkg.com/htmx.org/dist/ext/response-targets.js"></script>
       <link rel="stylesheet" href="/public/dist/styles.css" />
+      <script>{safeScript}</script>
+
     </head>
     <body hx-boost="true" class="h-screen">
       <h1 class=" bg-blue-500 p-5 text-center text-3xl font-bold text-white shadow-md">

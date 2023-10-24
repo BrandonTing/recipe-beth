@@ -8,7 +8,9 @@ export const index = new Elysia()
     return htmlStream(() => (
       <BaseHtml>
         <div class="flex flex-col items-center py-3">
-          index
+          {/* TODO show recipe list */}
+          rfwefwefwewefwefwefw
+
         </div>
       </BaseHtml>
     ));

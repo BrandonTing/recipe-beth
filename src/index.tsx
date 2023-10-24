@@ -1,10 +1,18 @@
 import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
 import {index} from "./pages";
+import { config } from "./config";
 
 const app = new Elysia()
   .use(staticPlugin())
   .use(index)
+  .onStart(({ log }) => {
+    if (config.env.NODE_ENV === "development") {
+      void fetch("http://localhost:3001/restart");
+      // log.debug("🦊 Triggering Live Reload");
+      console.log("🦊 Triggering Live Reload");
+    }
+  })
   .onError(({ code, error, request, log }) => {
     // log.error(` ${request.method} ${request.url}`, code, error);
     console.error(error);
