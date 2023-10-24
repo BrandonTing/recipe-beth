@@ -1,7 +1,6 @@
 import { Elysia } from "elysia";
 import { BaseHtml } from "../components/base";
 import { ctx } from "../context";
-import RecipeTable from "../components/table";
 import { getRecipes } from "../api/list";
 
 export const index = new Elysia()
@@ -11,7 +10,9 @@ export const index = new Elysia()
     return htmlStream(() => (
       <BaseHtml>
         <div class="flex flex-col items-center py-3">
-          {RecipeTable}
+          <div class="relative w-full">
+            {RecipeTable}
+          </div>
         </div>
       </BaseHtml>
     ));

@@ -1,6 +1,4 @@
 import { Elysia, t } from "elysia";
-import { ctx } from "../context";
-import Button from "../components/ui/button";
 import Table from "../components/table";
 
 export async function getRecipes () {
@@ -29,7 +27,6 @@ export async function getRecipes () {
 }
 
 export const list = new Elysia()
-//   .use(ctx)
   .get(
     "/list",
     getRecipes
