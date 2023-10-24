@@ -28,7 +28,6 @@ export const index = new Elysia()
     return htmlStream(() => (
       <BaseHtml>
         <div class="flex flex-col items-center py-3">
-          {/* TODO show recipe list */}
           <RecipeTable recipes={recipes} />
         </div>
       </BaseHtml>

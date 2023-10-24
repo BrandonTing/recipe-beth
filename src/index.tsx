@@ -2,9 +2,11 @@ import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
 import {index} from "./pages";
 import { config } from "./config";
+import { api } from "./api";
 
 const app = new Elysia()
   .use(staticPlugin())
+  .use(api)
   .use(index)
   .onStart(({ log }) => {
     if (config.env.NODE_ENV === "development") {
