@@ -38,6 +38,7 @@
     "@elysiajs/static": "^0.7.1",
     "@t3-oss/env-core": "^0.6.1",
     "beth-stack": "0.0.33",
+    "date-fns": "^2.30.0",
     "elysia": "^0.7.17",
     "pino-pretty": "^10.2.0",
     "zod": "^3.22.2"
