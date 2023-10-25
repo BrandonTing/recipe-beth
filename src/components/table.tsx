@@ -28,9 +28,11 @@ export default function ({ recipes }: ListProps)  {
                 {
                     recipes.map(({name, tags, estimatedTime, referenceLinks}, i) => (
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                            <th scope="row" hx-get={`/api/detail?recipeID=${i}`} hx-target="table" hx-swap="outerHTML" hx-hx-trigger="click"  class="px-6 py-4 font-medium cursor-pointer text-gray-900 whitespace-nowrap dark:text-white">
-                                {/* TODO click name, get detail content */}
-                                {name}
+                            <th scope="row" class="px-6 py-4 font-medium cursor-pointer text-gray-900 whitespace-nowrap dark:text-white">
+                                <a href={`/detail/${i}`}>
+                                    {/* TODO click name, get detail content */}
+                                    {name}
+                                </a>
                             </th>
                             <td class="px-6 py-4">
                                 {tags.join(', ')}
