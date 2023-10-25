@@ -36,5 +36,9 @@
     "noImplicitOverride": true,
     // "noImplicitReturns": true
     "verbatimModuleSyntax": false
-  }
+  },
+  "include": [
+    ".eslintrc.js",
+    "src"
+  ]
 }

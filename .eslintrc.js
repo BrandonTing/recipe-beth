@@ -1,4 +1,3 @@
-/** @type {import("eslint").Linter.Config} */
 const config = {
   root: true,
   parser: "@typescript-eslint/parser",
@@ -11,8 +10,9 @@ const config = {
   parserOptions: {
     ecmaVersion: "latest",
     sourceType: "module",
-    tsconfigRootDir: __dirname,
+    project: "./tsconfig.json",
   },
+
 };
 
 module.exports = config;
