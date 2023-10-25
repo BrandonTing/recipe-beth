@@ -21,7 +21,11 @@ export const BaseHtml = ({ children }: PropsWithChildren) => (
       <h1 class=" bg-blue-500 p-5 text-center text-3xl font-bold text-white shadow-md">
         Recipe Collections
       </h1>
-      {children}
+      <div class="flex flex-col items-center py-3">
+        <div class="relative w-2/3 m-auto">
+          {children}
+        </div>
+      </div>
     </body>
   </html>
 );
