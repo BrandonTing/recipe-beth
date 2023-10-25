@@ -17,7 +17,7 @@ export const BaseHtml = ({ children }: PropsWithChildren) => (
       <script>{safeScript}</script>
 
     </head>
-    <body hx-boost="true" class="h-screen">
+    <body hx-boost="true" class="h-screen text-base">
       <h1 class=" bg-blue-500 p-5 text-center text-3xl font-bold text-white shadow-md">
         Recipe Collections
       </h1>
