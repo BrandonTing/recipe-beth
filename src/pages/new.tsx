@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { BaseHtml } from "../components/base";
 import { ctx } from "../context";
-import Button from "../components/ui/button";
+import {IngredientInput, ReferenceInput, StepInput} from '../components/form/inputs'
 
 export const createNew = new Elysia()
   .use(ctx)
@@ -48,15 +48,10 @@ export const createNew = new Elysia()
             <div>
               <label for="ingredients" class="block text-sm font-medium leading-6 text-gray-900">原料</label>
               <div class="mt-2">
-                <fieldset class="flex gap-1">
-                  {/* TODO trigger auto complete */}
-                  <input hx-get='/api/new/ingredient/info' hx-trigger="change" hx-target="next #ingredientUnit" hx-swap="outerHTML" placeholder="名稱" name="ingredientName" class="px-2 mb-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-                  <input placeholder="量" type="number" min="0" name="ingredientAmount" class="px-2 mb-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-                  <input placeholder="單位" id="ingredientUnit" name="ingredientUnit" class="disabled:cursor-not-allowed px-2 mb-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-                </fieldset>
+                <IngredientInput />
                 <button  
                   hx-target="previous fieldset"
-                  hx-get="/api/new/emailInput"
+                  hx-get="/api/new/ingredientInput"
                   hx-trigger="click"
                   hx-swap="afterend"
                   type="button" class="w-full border-dashed  text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 flex justify-center" >
@@ -69,9 +64,7 @@ export const createNew = new Elysia()
 
             <div>
               <label for="steps" class="block text-sm font-medium leading-6 text-gray-900">步驟1</label>
-              <div class="my-2">
-                <textarea placeholder="請簡述食譜步驟" name="steps" id="steps"  class="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-              </div>
+              <StepInput />
               <button  
                 hx-target="previous div"
                 hx-get={`/api/new/stepsInput?count=`}
@@ -86,9 +79,7 @@ export const createNew = new Elysia()
 
             <div>
               <label for="reference" class="block text-sm font-medium leading-6 text-gray-900">參考資料</label>
-              <div class="my-2">
-                <input placeholder="請輸入參考連結" type="text" name="reference" class="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
-              </div>
+              <ReferenceInput/>
               <button  
                   hx-target="previous div"
                   hx-get="/api/new/referenceInput"
