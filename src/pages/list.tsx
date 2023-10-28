@@ -1,7 +1,8 @@
 import { Elysia } from "elysia";
 import { BaseHtml } from "../components/base";
 import { ctx } from "../context";
-import Table from "../components/table";
+import Card from "../components/card";
+import { Recipe } from "../schema";
 import Button from "../components/ui/button";
 
 export const list = new Elysia()
@@ -15,6 +16,7 @@ export const list = new Elysia()
         referenceLinks: ["https://www.youtube.com/watch?v=IhN7AAOX2eg"],
         tags: ["simple"],
         estimatedTime: 30,
+        description: "some description..."
       },
       {
         name: "test2",
@@ -23,20 +25,50 @@ export const list = new Elysia()
         referenceLinks: ["https://github.com/BrandonTing/recipe-beth"],
         tags: ["beer"],
         estimatedTime: 160,
+        description: "another description..."
       },
-    ];
-      return htmlStream(() => (
+    ] satisfies Array<Recipe>;
+    return htmlStream(() => (
       <BaseHtml>
-        <div class="text-right">
-          <a href="/new">
-            <Button variant="light">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-              </svg>
-            </Button>
-          </a>
-        </div>
-        <Table recipes={recipes} />
+        <main class="flex-1 px-4 py-8">
+          <div class="flex justify-between items-center mb-4">
+            <h1 class="text-3xl font-bold">Our Collections</h1>
+            <div class="flex gap-2">
+              <div class="w-64">
+                <input
+                  name="keyword"
+                  placeholder="Search recipes..."
+                  class="w-full px-4 py-2 border border-gray-300 rounded shadow-sm text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  type="text"
+                />
+              </div>
+              <Button 
+                hx-get="/api/recipe"
+                hx-include="input[name='keyword']"
+                hx-target="#cardsContainer"
+                hx-swap="innerHTML"
+              >
+                Search
+              </Button>
+
+              <Button>
+                Advanced Search
+              </Button>
+              <a href="/new" >
+                <Button>
+                  Add New
+                </Button>
+              </a>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="cardsContainer">
+            {
+              recipes.map(recipe => (
+                <Card recipe={recipe}/>
+              ))
+            }
+          </div>
+        </main>
       </BaseHtml>
     ));
   });

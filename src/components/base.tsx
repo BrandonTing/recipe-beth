@@ -22,7 +22,7 @@ export const BaseHtml = ({ children }: PropsWithChildren) => (
         Recipe Collections
       </h1>
       <div class="flex flex-col items-center py-3">
-        <div class="relative w-2/3 m-auto">
+        <div class="relative w-3/4 m-auto">
           {children}
         </div>
       </div>
