@@ -21,7 +21,7 @@ export const detail = new Elysia()
       <BaseHtml>
         <div class="px-4">
           <div class="flex items-center justify-center px-4 py-6 sm:px-0">
-            <a href="#">
+            <a href="/">
               <Button>
                 Back
               </Button>

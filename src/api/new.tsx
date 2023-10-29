@@ -56,10 +56,14 @@ export const createNew = new Elysia({
             <ReferenceInput />
         )
     })
-    .get('/stepsInput', async function () {
+    .get('/stepsInput', async function ({query: {count}}) {
         return (
-            <StepInput />
+            <StepInput count={count} />
         )
+    }, {
+        query: t.Object({
+            count: t.Numeric()
+        })
     })
     .get('/ingredient/info', async function ({query: {ingredientName}}) {
         return (

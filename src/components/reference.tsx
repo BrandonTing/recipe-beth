@@ -12,7 +12,7 @@ export default function reference() {
                 <ul>
                     {
                         referenceList.map(link => (
-                            <li>
+                            <li class="py-2">
                                 <a href="#">
                                     <h2 class="text-blue-500 text-2xl border-b-2">{link}</h2>
                                 </a>
