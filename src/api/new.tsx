@@ -1,6 +1,6 @@
 import Elysia, { t } from "elysia";
 import {IngredientInput, IngredientUnitInput, ReferenceInput, StepInput } from '../components/form/inputs'
-type Ingredient = {
+export type Ingredient = {
     name: string, 
     amount: number,
     unit: string

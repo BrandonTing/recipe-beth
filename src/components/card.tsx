@@ -2,7 +2,7 @@ import { Recipe } from "../schema";
 
 export default function Card ({recipe}: {recipe: Pick<Recipe, "name"|"description"|"tags">}) {
     return (
-        <a href="#">
+        <a href={`/detail/${recipe.name}`}>
             <div class="rounded overflow-hidden shadow-lg">
                 <img
                     src="/public/placeholder.svg"
