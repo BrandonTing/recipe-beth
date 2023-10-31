@@ -7,7 +7,7 @@ export default function reference() {
         "xx購買連結"
     ]
     return (
-        <div class="mt-6 space-y-8">
+        <div class="space-y-8 inline-block align-top">
             <div class="flex flex-col space-y-4 m-auto  min-w-fit w-1/4">
                 <ul>
                     {

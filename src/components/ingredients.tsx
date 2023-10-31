@@ -6,8 +6,8 @@ function Item ({item}: {item: Ingredient}) {
 
 export default function ingredients ({ingredients, seasonings}: {ingredients: Array<Ingredient>, seasonings: Array<Ingredient>}) {
     return (
-        <div class="mt-6 space-y-8 min-w-fit">
-            <div class="flex flex-col space-y-4 min-w-fit w-0 m-auto">
+        <div class="space-y-8 inline-block align-top">
+            <div class="flex flex-col space-y-4">
                 <section class="flex gap-6">
                     <h2 class="text-xl font-bold w-40">主要原料：</h2>
                     <div>

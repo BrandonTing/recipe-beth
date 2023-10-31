@@ -24,7 +24,7 @@ function Tab ({label, active, type}: TabProps) {
     return (
         <li 
             hx-get={`/api/detail/content/1?type=${type}`}
-            hx-target="closest div"
+            hx-target="#contentContainer"
             hx-swap="innerHTML"
             class={`${activeClass} cursor-pointer inline-block rounded-t-lg border-b-2  p-4`}
         >

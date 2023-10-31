@@ -16,7 +16,7 @@ export default function steps() {
         },
     ]
     return (
-        <ul class="mt-6 space-y-8 w-2/3 m-auto">
+        <ul class="space-y-8 inline-block align-top">
             {
                 testData.map((step, i) => (
                     <li class="flex items-start">

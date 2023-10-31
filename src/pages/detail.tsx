@@ -32,9 +32,17 @@ export const detail = new Elysia()
             This is a step by step guide to make the perfect apple pie for your family and friends.
           </p>
         </div>
-        <div>
+        <div id="contentContainer">
           <Tabs activeType="ingredients" />
-          <Ingredients ingredients={detail.ingredients} seasonings={detail.seasonings}/>
+          <div class="pt-2 w-full">
+            <img
+              src="/public/placeholder.svg"
+              alt="Step 1"
+              class="rounded-md object-cover w-1/3 inline-block mr-5"
+              style="aspect-ratio: 100 / 100; object-fit: cover;"
+            /> 
+            <Ingredients ingredients={detail.ingredients} seasonings={detail.seasonings}/>
+          </div>
         </div>
       </BaseHtml>
     ));
