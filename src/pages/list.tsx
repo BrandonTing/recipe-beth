@@ -51,7 +51,11 @@ export const list = new Elysia()
                 Search
               </Button>
 
-              <Button>
+              <Button 
+                hx-get="/api/recipe/advanced"
+                hx-target="this"
+                hx-swap="afterend"
+              >
                 Advanced Search
               </Button>
               <a href="/new" >
