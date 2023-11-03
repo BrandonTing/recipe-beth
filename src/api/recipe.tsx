@@ -6,7 +6,6 @@ export const recipe = new Elysia({
     prefix: "/recipe"
 })
     .get('/', async function ({query: {keyword}}) {
-        console.log(keyword)
         const filteredRecipes = [
             {
               name: "test",
@@ -35,7 +34,7 @@ export const recipe = new Elysia({
         }),
     },
 )
-.get('/advanced', async function ({query: {keyword}}) {
+.get('/advanced', async function () {
     return (
         <div id="advancedSearchModal" class="fixed flex items-center justify-center w-screen h-screen left-0 top-0 ">
             <div class="bg-white shadow-lg opacity-100 p-5 ">
