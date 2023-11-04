@@ -20,7 +20,7 @@ export const createNew = new Elysia()
         <form class="border-b border-gray-900/10 pb-10"  method="POST" action="/api/new" >
           <div class="mt-4 flex flex-col gap-2">
             <div>
-              <label for="name" class="block text-base font-medium leading-6 text-gray-900">名稱</label>
+              <label for="title" class="block text-base font-medium leading-6 text-gray-900">名稱</label>
               <div class="mt-2">
                 <input placeholder="請輸入食譜名稱" type="text" name="name" id="name"  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 px-2"/>
               </div>
@@ -32,6 +32,8 @@ export const createNew = new Elysia()
                 <textarea placeholder="請簡單描述這份食譜" name="description" id="description"  class="px-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
               </div>
             </div>
+
+            {/* TODO add estimated time  */}
 
             <div>
               <label for="ingredients" class="block text-base font-medium leading-6 text-gray-900">原料</label>
@@ -53,7 +55,8 @@ export const createNew = new Elysia()
             <div>
               <StepInput count={1} />
             </div>
-
+            {/* 20231104 先不做參考資料 */}
+{/* 
             <div>
               <label for="reference" class="block text-base font-medium leading-6 text-gray-900">參考資料</label>
               <ReferenceInput/>
@@ -67,7 +70,7 @@ export const createNew = new Elysia()
                     <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                   </svg>
                 </button>
-            </div>
+            </div> */}
 
             <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-base w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Submit</button>
           </div>

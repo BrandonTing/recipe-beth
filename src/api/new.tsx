@@ -1,49 +1,97 @@
 import Elysia, { t } from "elysia";
 import {IngredientInput, IngredientUnitInput, ReferenceInput, StepInput } from '../components/form/inputs'
-export type Ingredient = {
-    name: string, 
-    amount: number,
-    unit: string
-}
+import { Ingredient, RecipeIngredient, Step, ingredients, recipeIngredients, recipes, steps } from "../db/schema";
+import { db } from "../db";
+
 export const createNew = new Elysia({
     prefix: "/new"
 })
-    .post('/', async function ({body: {ingredientAmount, ingredientName, ingredientUnit},set}) {
-        const ingredients: Array<Ingredient> = Array.isArray(ingredientName) ? ingredientName.map((name, i) => {
+    .post('/', async function ({body: {title, description,ingredientAmount, ingredientName, ingredientUnit, stepTitle, stepDescription},set}) {
+        const newIngredientKinds: Array<Ingredient> = ingredientUnit && Array.isArray(ingredientName) ? ingredientName.map((name, i) => {
+            const unit = (ingredientUnit as Array<string>)[i];
+            if(!unit) return
+            return {
+                name,
+                unit,
+            }
+        }).filter(Boolean) : [
+            {
+                name: ingredientName as string,
+                unit: ingredientUnit as string,
+            }
+        ]
+        const newRecipeIngredients: Array<Omit<RecipeIngredient, "recipeID">> = Array.isArray(ingredientName) ? ingredientName.map((name, i) => {
             return {
                 name,
                 amount: Number((ingredientAmount as Array<number>)[i]!),
-                unit: ingredientUnit[i]!,
             }
         }) : [
             {
                 name: ingredientName,
                 amount: Number(ingredientAmount) as number,
-                unit: ingredientUnit as string
             }
         ]
-        console.log(ingredients)
-        // TODO create new recipe 
-        return set.redirect = "/"
+        const recipeSteps: Array<Step> = Array.isArray(stepTitle) ? stepTitle.map((title, i) => {
+            return {
+                title,
+                description: (stepTitle as Array<string>)[i]!
+            }
+        }) : [
+            {
+                title: stepTitle,
+                description: stepDescription as string
+            }
+        ]
+        try {
+            await db.insert(ingredients).values(newIngredientKinds);
+            console.log(`added new ingredients: ${newIngredientKinds.map(kind => kind.name + ': ' + kind.unit).join(", ")}`)            
+            const recipe = await db.insert(recipes).values({
+                title,
+                description,
+                estimatedTime: 1000
+            }).returning()
+            const recipeID = recipe[0]!.id
+            console.log(`created new recipe ${title}, id: ${recipeID}`)            
+            await db.insert(recipeIngredients).values(newRecipeIngredients.map(ingre => ({
+                ...ingre,
+                recipeID
+            })));
+            await db.insert(steps).values(recipeSteps.map(step => ({
+                ...step,
+                recipeID
+            })));
+            return set.redirect = "/"
+        } catch (err) {
+            console.error(`[create new recipe] error: ${err}`);
+            throw Error("Failed to create new recipe")
+        }
     },   
     {
         body: t.Intersect([
             t.Object({
-                "name": t.String(),
+                "title": t.String(),
                 "description": t.String(),
-                steps:t.Union([t.Array(t.String()), t.String()]) ,
-                "reference": t.Union([t.Array(t.String()), t.String()]) ,
             }),
             t.Union([
                 t.Object({
                     "ingredientName":t.Array(t.String()),
                     "ingredientAmount":t.Array(t.Numeric()),
-                    "ingredientUnit":t.Array(t.String()),    
+                    "ingredientUnit":t.Optional(t.Array(t.String())),    
                 }),
                 t.Object({
                     "ingredientName":t.String(),
                     "ingredientAmount":t.Numeric(),
-                    "ingredientUnit":t.String(),
+                    "ingredientUnit":t.Optional(t.String()),
+                })
+            ]),
+            t.Union([
+                t.Object({
+                    "stepTitle":t.Array(t.String()),
+                    "stepDescription":t.Array(t.String()),
+                }),
+                t.Object({
+                    "stepTitle":t.String(),
+                    "stepDescription":t.String(),
                 })
             ])
         ]),
@@ -67,7 +115,7 @@ export const createNew = new Elysia({
     })
     .get('/ingredient/info', async function ({query: {ingredientName}}) {
         return (
-            <IngredientUnitInput value="顆" disabled={true} />
+            <IngredientUnitInput value="顆" disabled={false} />
         )
     }, {
         query: t.Object({
