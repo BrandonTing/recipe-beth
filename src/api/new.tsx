@@ -2,11 +2,12 @@ import Elysia, { t } from "elysia";
 import {IngredientInput, IngredientUnitInput, ReferenceInput, StepInput } from '../components/form/inputs'
 import { Ingredient, RecipeIngredient, Step, ingredients, recipeIngredients, recipes, steps } from "../db/schema";
 import { db } from "../db";
+import { eq } from "drizzle-orm";
 
 export const createNew = new Elysia({
     prefix: "/new"
 })
-    .post('/', async function ({body: {title, description,ingredientAmount, ingredientName, ingredientUnit, stepTitle, stepDescription},set}) {
+    .post('/', async function ({body: {title, description, estimatedTime, ingredientAmount, ingredientName, ingredientUnit, stepTitle, stepDescription},set}) {
         const newIngredientKinds: Array<Ingredient> = ingredientUnit && Array.isArray(ingredientName) ? ingredientName.map((name, i) => {
             const unit = (ingredientUnit as Array<string>)[i];
             if(!unit) return
@@ -48,7 +49,7 @@ export const createNew = new Elysia({
             const recipe = await db.insert(recipes).values({
                 title,
                 description,
-                estimatedTime: 1000
+                estimatedTime
             }).returning()
             const recipeID = recipe[0]!.id
             console.log(`created new recipe ${title}, id: ${recipeID}`)            
@@ -71,6 +72,7 @@ export const createNew = new Elysia({
             t.Object({
                 "title": t.String(),
                 "description": t.String(),
+                estimatedTime: t.Numeric()
             }),
             t.Union([
                 t.Object({
@@ -113,10 +115,21 @@ export const createNew = new Elysia({
             count: t.Numeric()
         })
     })
-    .get('/ingredient/info', async function ({query: {ingredientName}}) {
-        return (
-            <IngredientUnitInput value="顆" disabled={false} />
-        )
+    .get('/ingredient/unit', async function ({query: {ingredientName}}) {
+        try {
+            const ingredient = await db.query.ingredients.findFirst({
+                where: eq(ingredients.name, ingredientName)
+            })
+            const unit = ingredient?.unit ?? ""
+            return (
+                <IngredientUnitInput value={unit} disabled={Boolean(unit)}  />
+            )    
+        } catch (err) {
+            console.error(err);
+            return (
+                <IngredientUnitInput value=""  />
+            )        
+        }
     }, {
         query: t.Object({
             ingredientName: t.String()

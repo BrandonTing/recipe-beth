@@ -6,10 +6,9 @@ import Button from "../components/ui/button";
 export const createNew = new Elysia()
   .use(ctx)
   .get("/new", async ({ htmlStream,  }) => {
-    
     return htmlStream(() => (
       <BaseHtml>
-          <div class="flex items-center justify-center px-4 py-6 sm:px-0">
+          <div class="flex items-center justify-center px-4 py-4 sm:px-0">
             <a href="/">
               <Button>
                 Back
@@ -18,7 +17,7 @@ export const createNew = new Elysia()
             <h1 class="text-4xl font-bold text-gray-900 mx-auto">建立新食譜</h1>
           </div>
         <form class="border-b border-gray-900/10 pb-10"  method="POST" action="/api/new" >
-          <div class="mt-4 flex flex-col gap-2">
+          <div class="flex flex-col gap-2">
             <div>
               <label for="title" class="block text-base font-medium leading-6 text-gray-900">名稱</label>
               <div class="mt-2">
@@ -33,7 +32,12 @@ export const createNew = new Elysia()
               </div>
             </div>
 
-            {/* TODO add estimated time  */}
+            <div>
+              <label for="estimatedTime" class="block text-base font-medium leading-6 text-gray-900">預估時間</label>
+              <div class="mt-2">
+                <input placeholder="預估花費時間（分鐘）" type="number" min="0" name="estimatedTime" class="px-2 mb-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"/>
+              </div>
+            </div>
 
             <div>
               <label for="ingredients" class="block text-base font-medium leading-6 text-gray-900">原料</label>
