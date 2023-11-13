@@ -1,10 +1,12 @@
 import Elysia, { t } from "elysia";
 import { Recipe } from "../schema";
 import Card from "../components/card";
+import { ctx } from "../context";
 
 export const recipe = new Elysia({
     prefix: "/recipe"
 })
+    .use(ctx)
     .get('/', async function ({query: {keyword}}) {
         const filteredRecipes = [
             {

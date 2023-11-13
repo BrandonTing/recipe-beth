@@ -3,24 +3,34 @@ import {IngredientInput, IngredientUnitInput, ReferenceInput, StepInput } from '
 import { Ingredient, RecipeIngredient, Step, ingredients, recipeIngredients, recipes, steps } from "../db/schema";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
+import { ctx } from "../context";
 
 export const createNew = new Elysia({
     prefix: "/new"
 })
-    .post('/', async function ({body: {title, description, estimatedTime, ingredientAmount, ingredientName, ingredientUnit, stepTitle, stepDescription},set}) {
-        const newIngredientKinds: Array<Ingredient> = ingredientUnit && Array.isArray(ingredientName) ? ingredientName.map((name, i) => {
-            const unit = (ingredientUnit as Array<string>)[i];
-            if(!unit) return
-            return {
-                name,
-                unit,
-            }
-        }).filter(Boolean) : [
-            {
-                name: ingredientName as string,
-                unit: ingredientUnit as string,
-            }
-        ]
+    .use(ctx)
+    .post('/', async function ({
+        body: {title, description, estimatedTime, ingredientAmount, ingredientName, ingredientUnit, stepTitle, stepDescription},
+        set,
+        log
+    }) {
+        let newIngredientKinds: Array<Ingredient> = []
+        if(ingredientUnit) {
+            newIngredientKinds = Array.isArray(ingredientName) ? ingredientName.map((name, i) => {
+                const unit = (ingredientUnit as Array<string>)[i];
+                if(!unit) return
+                return {
+                    name,
+                    unit,
+                }
+            }).filter(Boolean) : [
+                {
+                    name: ingredientName as string,
+                    unit: ingredientUnit as string,
+                }
+            ]
+        }
+        
         const newRecipeIngredients: Array<Omit<RecipeIngredient, "recipeID">> = Array.isArray(ingredientName) ? ingredientName.map((name, i) => {
             return {
                 name,
@@ -44,15 +54,17 @@ export const createNew = new Elysia({
             }
         ]
         try {
-            await db.insert(ingredients).values(newIngredientKinds);
-            console.log(`added new ingredients: ${newIngredientKinds.map(kind => kind.name + ': ' + kind.unit).join(", ")}`)            
+            if(newIngredientKinds.length) {
+                await db.insert(ingredients).values(newIngredientKinds);
+                log.info(`added new ingredients: ${newIngredientKinds.map(kind => kind.name + ': ' + kind.unit).join(", ")}`)            
+            }
             const recipe = await db.insert(recipes).values({
                 title,
                 description,
                 estimatedTime
             }).returning()
             const recipeID = recipe[0]!.id
-            console.log(`created new recipe ${title}, id: ${recipeID}`)            
+            log.info(`created new recipe ${title}, id: ${recipeID}`)            
             await db.insert(recipeIngredients).values(newRecipeIngredients.map(ingre => ({
                 ...ingre,
                 recipeID
@@ -115,7 +127,7 @@ export const createNew = new Elysia({
             count: t.Numeric()
         })
     })
-    .get('/ingredient/unit', async function ({query: {ingredientName}}) {
+    .get('/ingredient/unit', async function ({query: {ingredientName}, log}) {
         try {
             const ingredient = await db.query.ingredients.findFirst({
                 where: eq(ingredients.name, ingredientName)
@@ -125,7 +137,7 @@ export const createNew = new Elysia({
                 <IngredientUnitInput value={unit} disabled={Boolean(unit)}  />
             )    
         } catch (err) {
-            console.error(err);
+            log.error(err);
             return (
                 <IngredientUnitInput value=""  />
             )        

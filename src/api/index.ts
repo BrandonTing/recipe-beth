@@ -7,7 +7,6 @@ import { recipe } from "./recipe";
 export const api = new Elysia({
     prefix: "/api",
 })
-    .use(ctx)
     .use(recipe)
     .use(detail)
     .use(createNew)
