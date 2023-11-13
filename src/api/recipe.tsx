@@ -3,8 +3,8 @@ import { Recipe } from "../schema";
 import Card from "../components/card";
 import { ctx } from "../context";
 import { db } from "../db";
-import { recipes } from "../db/schema";
-import { desc, like } from "drizzle-orm";
+import { recipeIngredients, recipes, steps } from "../db/schema";
+import { desc, eq, like } from "drizzle-orm";
 
 export const recipe = new Elysia({
     prefix: "/recipe"
@@ -204,4 +204,20 @@ export const recipe = new Elysia({
 })
 .get('/closeAdvance', async () => {
     return ""
+})
+.post('/remove/:id', async ({params: {id}, log, set}) => {
+    try {
+        await db.delete(recipeIngredients).where(eq(recipeIngredients.recipeID, id));
+        await db.delete(steps).where(eq(steps.recipeID, id));
+        await db.delete(recipes).where(eq(recipes.id, id))    
+        set.headers["HX-Refresh"] = "true";
+    } catch (err) {
+        log.error(err)
+    }
+
+    return ""
+}, {
+    params: t.Object({
+        id: t.Numeric()
+    })
 })

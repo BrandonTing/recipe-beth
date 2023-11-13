@@ -28,7 +28,7 @@ const app = new Elysia()
       log.debug(`Request received: ${request.method}: ${request.url}`);
     }
   })
-  .onResponse(({ log, request, set }) => {
+  .onResponse(({ log, request, }) => {
     if (log && config.env.NODE_ENV === "production") {
       log.debug(`Response sent: ${request.method}: ${request.url}`);
     }
