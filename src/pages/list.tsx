@@ -24,7 +24,7 @@ export const list = new Elysia()
       <BaseHtml>
         <main class="flex-1 px-4 py-8">
           <div class="flex justify-between items-center mb-4">
-            <h1 class="text-3xl font-bold">Our Collections</h1>
+            <h1 class="text-3xl font-bold">Collections</h1>
             <div class="flex gap-2">
               <div class="w-64">
                 <input

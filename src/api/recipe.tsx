@@ -2,30 +2,33 @@ import Elysia, { t } from "elysia";
 import { Recipe } from "../schema";
 import Card from "../components/card";
 import { ctx } from "../context";
+import { db } from "../db";
+import { recipes } from "../db/schema";
+import { desc, like } from "drizzle-orm";
 
 export const recipe = new Elysia({
     prefix: "/recipe"
 })
     .use(ctx)
     .get('/', async function ({query: {keyword}}) {
-        const filteredRecipes = [
-            {
-              name: "test",
-              ingredients: ["chicken", "tofu"],
-              seasonings: ["miso"],
-              referenceLinks: ["https://www.youtube.com/watch?v=IhN7AAOX2eg"],
-              tags: ["simple"],
-              estimatedTime: 30,
-              description: "some description..."
-            },
-          ] satisfies Array<Recipe>;
-      
+        const filteredRecipes = await db.query.recipes.findMany({
+            where: like(recipes.title, `%${keyword}%`),
+            orderBy: [desc(recipes.createdAt)],
+            // FIXME add pagination
+            limit: 10,
+            columns: {
+              id: true,
+              title: true,
+              description: true
+            }
+          });
+
         return (
             <>
                 {
                     filteredRecipes.map(recipe => (
                         <Card recipe={recipe}/>
-                        ))
+                    ))
                 }
             </>
         )
