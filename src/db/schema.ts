@@ -1,13 +1,17 @@
-import { InferInsertModel, relations } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { InferInsertModel, InferSelectModel, relations } from "drizzle-orm";
+import { integer, sqliteTable, text, } from "drizzle-orm/sqlite-core";
 
 export const recipes = sqliteTable("recipes", {
     id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     title: text("title").notNull(),
     description: text("description").notNull(),
-    estimatedTime: integer("estimatedTime", { mode: "number" }).notNull(),
-    imageUrl: text("image_url")
+    estimatedTime: integer("estimated_time", { mode: "number" }).notNull(),
+    imageUrl: text("image_url"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+        .notNull()
+        .$defaultFn(() => new Date()),
 })
+export type Recipes = InferSelectModel<typeof recipes>
 
 export const steps = sqliteTable("steps", {
     id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),

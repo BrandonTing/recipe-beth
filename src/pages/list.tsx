@@ -2,32 +2,19 @@ import { Elysia } from "elysia";
 import { BaseHtml } from "../components/base";
 import { ctx } from "../context";
 import Card from "../components/card";
-import { Recipe } from "../schema";
 import Button from "../components/ui/button";
+import { db } from "../db";
+import { desc } from "drizzle-orm";
+import { recipes as receipeSchema } from "../db/schema";
 
 export const list = new Elysia()
   .use(ctx)
   .get("/", async ({ htmlStream,  }) => {
-    const recipes = [
-      {
-        name: "test",
-        ingredients: ["chicken", "tofu"],
-        seasonings: ["miso"],
-        referenceLinks: ["https://www.youtube.com/watch?v=IhN7AAOX2eg"],
-        tags: ["simple"],
-        estimatedTime: 30,
-        description: "some description..."
-      },
-      {
-        name: "test2",
-        ingredients: ["beef", "beer"],
-        seasonings: ["love"],
-        referenceLinks: ["https://github.com/BrandonTing/recipe-beth"],
-        tags: ["beer"],
-        estimatedTime: 160,
-        description: "another description..."
-      },
-    ] satisfies Array<Recipe>;
+    const recipes = await db.query.recipes.findMany({
+      orderBy: [desc(receipeSchema.createdAt)],
+      // FIXME add pagination
+      limit: 10
+    });
     return htmlStream(() => (
       <BaseHtml>
         <main class="flex-1 px-4 py-8">
@@ -67,9 +54,15 @@ export const list = new Elysia()
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="cardsContainer">
             {
-              recipes.map(recipe => (
-                <Card recipe={recipe}/>
-              ))
+              recipes.length ? (
+                <>
+                  {
+                    recipes.map(recipe => (
+                      <Card recipe={recipe}/>
+                    ))
+                  }
+                </>                
+              ) : <p>目前尚未登錄任何食譜，踏出成為料理王的第一步吧！</p>
             }
           </div>
         </main>
