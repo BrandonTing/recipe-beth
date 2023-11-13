@@ -1,10 +1,13 @@
-import { Ingredient } from "../api/new";
+import type { Ingredient, RecipeIngredient } from "../db/schema"
 
-function Item ({item}: {item: Ingredient}) {
-    return <p class=" text-gray-500">{item.name} - {item.amount} {item.unit}</p>
+type IngredientItem = RecipeIngredient & {
+    ingredient: Ingredient
+}
+function Item ({item}: {item: IngredientItem}) {
+    return <p class=" text-gray-500">{item.name} - {item.amount} {item.ingredient.unit}</p>
 }
 
-export default function ingredients ({ingredients, seasonings}: {ingredients: Array<Ingredient>, seasonings: Array<Ingredient>}) {
+export default function ingredients ({ingredients, seasonings}: {ingredients: Array<IngredientItem>, seasonings: Array<IngredientItem>}) {
     return (
         <div class="space-y-8 inline-block align-top">
             <div class="flex flex-col space-y-4">

@@ -1,8 +1,8 @@
 import { Recipes } from "../db/schema";
 
-export default function Card ({recipe}: {recipe: Pick<Recipes, "title"|"description">}) {
+export default function Card ({recipe}: {recipe: Pick<Recipes, "title"|"description"|"id">}) {
     return (
-        <a href={`/detail/${recipe.title}`}>
+        <a href={`/detail/${recipe.id}`}>
             <div class="rounded overflow-hidden shadow-lg">
                 <img
                     src="/public/placeholder.svg"

@@ -1,21 +1,30 @@
-import { Elysia, t } from "elysia";
+import { Elysia, NotFoundError, t } from "elysia";
 import { BaseHtml } from "../components/base";
 import { ctx } from "../context";
 import Ingredients from "../components/ingredients";
 import Button from "../components/ui/button";
 import Tabs from "../components/tabs";
+import { db } from "../db";
+import { eq } from "drizzle-orm";
+import { recipes } from "../db/schema";
 
 export const detail = new Elysia()
   .use(ctx)
   .get("/detail/:id", async ({ htmlStream, params: {id} }) => {
-    const detail = {
-      name: "test",
-      ingredients: [{name: "雞胸肉", amount: 100, unit: '克'}, {name: "豆腐", amount: 2, unit: '塊'}],
-      seasonings: [{name: "味噌", amount: 2, unit: '匙'}],
-      referenceLinks: ["https://www.youtube.com/watch?v=IhN7AAOX2eg"],
-      tags: ["simple"],
-      estimatedTime: 30,
-    };
+    const recipeDetail = await db.query.recipes.findFirst({
+      where: eq(recipes.id, id),
+      with: {
+        ingredients: {
+          with: {
+            ingredient: true
+          }
+        },
+        steps: true
+      }
+    })
+    if(!recipeDetail) {
+      throw new NotFoundError("Target recipe does not exist! Please try again.")
+    }
     // TODO get ingredients data
     return htmlStream(() => (
       <BaseHtml>
@@ -33,7 +42,7 @@ export const detail = new Elysia()
           </p>
         </div>
         <div id="contentContainer">
-          <Tabs activeType="ingredients" />
+          <Tabs activeType="ingredients" recipeId={id} />
           <div class="pt-2 w-full">
             <img
               src="/public/placeholder.svg"
@@ -41,10 +50,16 @@ export const detail = new Elysia()
               class="rounded-md object-cover w-1/3 inline-block mr-5"
               style="aspect-ratio: 100 / 100; object-fit: cover;"
             /> 
-            <Ingredients ingredients={detail.ingredients} seasonings={detail.seasonings}/>
+            {/* FIXME */}
+            <Ingredients ingredients={recipeDetail.ingredients} seasonings={[]}/>
           </div>
         </div>
       </BaseHtml>
     ));
-  }
+  },
+  {
+    params: t.Object({
+      id: t.Numeric()
+    }),
+  },
 );

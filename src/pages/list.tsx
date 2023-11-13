@@ -13,7 +13,12 @@ export const list = new Elysia()
     const recipes = await db.query.recipes.findMany({
       orderBy: [desc(receipeSchema.createdAt)],
       // FIXME add pagination
-      limit: 10
+      limit: 10,
+      columns: {
+        id: true,
+        title: true,
+        description: true
+      }
     });
     return htmlStream(() => (
       <BaseHtml>
