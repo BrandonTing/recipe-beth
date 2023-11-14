@@ -4,27 +4,28 @@ CREATE TABLE `ingredients` (
 );
 --> statement-breakpoint
 CREATE TABLE `recipe_ingredients` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`name` text,
-	`recipe_id` integer,
-	`amount` integer,
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`recipe_id` text NOT NULL,
+	`amount` integer NOT NULL,
 	FOREIGN KEY (`name`) REFERENCES `ingredients`(`name`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `recipes` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`id` text PRIMARY KEY NOT NULL,
 	`title` text NOT NULL,
 	`description` text NOT NULL,
-	`estimatedTime` integer NOT NULL,
-	`image_url` text
+	`estimated_time` integer NOT NULL,
+	`image_url` text,
+	`created_at` integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `steps` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`id` text PRIMARY KEY NOT NULL,
 	`title` text NOT NULL,
 	`description` text NOT NULL,
 	`image_url` text,
-	`recipe_id` integer,
+	`recipe_id` text,
 	FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON UPDATE no action ON DELETE no action
 );

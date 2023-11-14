@@ -218,6 +218,6 @@ export const recipe = new Elysia({
     return ""
 }, {
     params: t.Object({
-        id: t.Numeric()
+        id: t.String()
     })
 })

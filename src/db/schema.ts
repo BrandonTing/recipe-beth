@@ -1,8 +1,8 @@
-import { InferInsertModel, InferSelectModel, relations } from "drizzle-orm";
+import { InferInsertModel, InferSelectModel, relations, sql } from "drizzle-orm";
 import { integer, sqliteTable, text, } from "drizzle-orm/sqlite-core";
 
 export const recipes = sqliteTable("recipes", {
-    id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     title: text("title").notNull(),
     description: text("description").notNull(),
     estimatedTime: integer("estimated_time", { mode: "number" }).notNull(),
@@ -14,11 +14,11 @@ export const recipes = sqliteTable("recipes", {
 export type Recipes = InferSelectModel<typeof recipes>
 
 export const steps = sqliteTable("steps", {
-    id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     title: text("title").notNull(),
     description: text("description").notNull(),
     imageUrl: text("image_url"),
-    recipeID: integer("recipe_id").references(() => recipes.id)
+    recipeID: text("recipe_id").references(() => recipes.id)
 })
 
 export type Step = InferInsertModel<typeof steps>
@@ -31,9 +31,9 @@ export const ingredients = sqliteTable("ingredients", {
 export type Ingredient = InferInsertModel<typeof ingredients>
 
 export const recipeIngredients = sqliteTable("recipe_ingredients", {
-    id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+    id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
     name: text("name").references(() => ingredients.name).notNull(),
-    recipeID: integer("recipe_id").references(() => recipes.id).notNull(),
+    recipeID: text("recipe_id").references(() => recipes.id).notNull(),
     amount: integer("amount", { mode: "number" }).notNull()
 })
 
