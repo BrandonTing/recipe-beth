@@ -20,7 +20,7 @@ const TabList: Array<Omit<TabProps, "active">> = [
   ]
   
 function Tab ({label, active, type, recipeId}: TabProps & {
-    recipeId: number
+    recipeId: string
 }) {
     const activeClass = active ? "border-blue-600 text-blue-600 dark:border-blue-500 dark:text-blue-500" : "border-transparent hover:border-gray-300 hover:text-gray-600 dark:hover:text-gray-300"
     return (
@@ -34,7 +34,7 @@ function Tab ({label, active, type, recipeId}: TabProps & {
         </li>
     )
 }
-export default function Tabs ({activeType, recipeId}: {activeType: string, recipeId: number}) {
+export default function Tabs ({activeType, recipeId}: {activeType: string, recipeId: string}) {
     {/* tabs for ingredients, seasonings, steps, reference, etc */}
     return (
         <ul class="-mb-px flex justify-center gap-2 border-b border-gray-200 text-center text-base font-medium text-gray-500 dark:border-gray-700 dark:text-gray-400">

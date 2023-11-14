@@ -59,7 +59,7 @@ export const detail = new Elysia()
   },
   {
     params: t.Object({
-      id: t.Numeric()
+      id: t.String()
     }),
   },
 );

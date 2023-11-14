@@ -1,5 +1,4 @@
 import Elysia, { t } from "elysia";
-import { Recipe } from "../schema";
 import Card from "../components/card";
 import { ctx } from "../context";
 import { db } from "../db";

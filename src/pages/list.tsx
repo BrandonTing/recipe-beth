@@ -39,6 +39,7 @@ export const list = new Elysia()
                 hx-include="input[name='keyword']"
                 hx-target="#cardsContainer"
                 hx-swap="innerHTML"
+                hx-indicator="#listLoading"
               >
                 Search
               </Button>
@@ -57,7 +58,8 @@ export const list = new Elysia()
               </a>
             </div>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-8" id="cardsContainer">
+          <p id="listLoading" class="hidden [&.htmx-request]:block">loading...</p>
+          <div class=" grid grid-cols-1 md:grid-cols-2 gap-8" id="cardsContainer">
             {
               recipes.length ? (
                 <>

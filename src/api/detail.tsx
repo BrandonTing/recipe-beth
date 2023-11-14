@@ -81,7 +81,7 @@ export const detail = new Elysia({
             type: t.Union([t.Literal("ingredients"), t.Literal("steps"), t.Literal("references")]),
         }),
         params: t.Object({
-            id: t.Numeric()
+            id: t.String()
         }),
     },
 )
