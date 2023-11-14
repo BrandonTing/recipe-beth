@@ -16,7 +16,8 @@ export const createNew = new Elysia()
             </a>
             <h1 class="text-4xl font-bold text-gray-900 mx-auto">建立新食譜</h1>
           </div>
-        <form class="border-b border-gray-900/10 pb-10"  method="POST" action="/api/new" >
+        <form class="border-b border-gray-900/10 pb-10" 
+          hx-trigger="submit" hx-post="/api/new" >
           <div class="flex flex-col gap-2">
             <div>
               <label for="title" class="block text-base font-medium leading-6 text-gray-900">名稱</label>

@@ -2,7 +2,7 @@ import Elysia, { t } from "elysia";
 import {IngredientInput, IngredientUnitInput, ReferenceInput, StepInput } from '../components/form/inputs'
 import { Ingredient, RecipeIngredient, Step, ingredients, recipeIngredients, recipes, steps } from "../db/schema";
 import { db } from "../db";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { ctx } from "../context";
 
 export const createNew = new Elysia({
@@ -16,21 +16,34 @@ export const createNew = new Elysia({
     }) {
         let newIngredientKinds: Array<Ingredient> = []
         if(ingredientUnit) {
-            newIngredientKinds = Array.isArray(ingredientName) ? ingredientName.map((name, i) => {
-                const unit = (ingredientUnit as Array<string>)[i];
-                if(!unit) return
-                return {
-                    name,
-                    unit,
-                }
-            }).filter(Boolean) : [
-                {
-                    name: ingredientName as string,
-                    unit: ingredientUnit as string,
-                }
-            ]
+            if(!Array.isArray(ingredientName)) {
+                newIngredientKinds = [
+                    {
+                        name: ingredientName as string,
+                        unit: ingredientUnit as string,
+                    }
+                ]
+            } else {
+                // get existing ingredients 
+                const existingIngredientKinds = await db.query.ingredients.findMany({
+                    columns: {
+                        name: true,
+                    },
+                    where: inArray(ingredients.name, ingredientName)
+                })
+
+                newIngredientKinds = ingredientName
+                    .filter(name => !existingIngredientKinds.find(kind => kind.name === name))
+                    .map((name, i) => {
+                    const unit = (ingredientUnit as Array<string>)[i];
+                    if(!unit) return
+                    return {
+                        name,
+                        unit,
+                    }
+                }).filter(Boolean)    
+            }
         }
-        
         const newRecipeIngredients: Array<Omit<RecipeIngredient, "recipeID">> = Array.isArray(ingredientName) ? ingredientName.map((name, i) => {
             return {
                 name,
@@ -90,13 +103,19 @@ export const createNew = new Elysia({
                 t.Object({
                     "ingredientName":t.Array(t.String()),
                     "ingredientAmount":t.Array(t.Numeric()),
-                    "ingredientUnit":t.Optional(t.Array(t.String())),    
                 }),
                 t.Object({
                     "ingredientName":t.String(),
                     "ingredientAmount":t.Numeric(),
-                    "ingredientUnit":t.Optional(t.String()),
                 })
+            ]),
+            t.Union([
+                t.Object({
+                    "ingredientUnit":t.Optional(t.Array(t.String())),    
+                }),
+                t.Object({
+                    "ingredientUnit":t.Optional(t.String()),
+                }),
             ]),
             t.Union([
                 t.Object({
@@ -129,10 +148,12 @@ export const createNew = new Elysia({
     })
     .get('/ingredient/unit', async function ({query: {ingredientName}, log}) {
         try {
+            // FIXME 如果有兩個input 僅有一個加上新unit會出錯
             const ingredient = await db.query.ingredients.findFirst({
                 where: eq(ingredients.name, ingredientName)
             })
             const unit = ingredient?.unit ?? ""
+            console.log(unit)
             return (
                 <IngredientUnitInput value={unit} disabled={Boolean(unit)}  />
             )    
