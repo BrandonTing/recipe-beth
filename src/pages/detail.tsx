@@ -7,6 +7,8 @@ import Tabs from "../components/tabs";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { recipes } from "../db/schema";
+import { GetEstimatedTimeText } from "../lib/util";
+import { Tags } from "../components/tags";
 
 export const detail = new Elysia()
   .use(ctx)
@@ -30,26 +32,28 @@ export const detail = new Elysia()
       <BaseHtml>
         <div class="px-4">
           <div class="flex items-center justify-center px-4 py-6 sm:px-0">
-            <a href="/">
-              <Button>
-                Back
-              </Button>
-            </a>
-            <h1 class="text-4xl font-bold text-gray-900 mx-auto">Delicious Apple Pie</h1>
+            
+            <h1 class="text-4xl font-bold w-full text-gray-900 text-center relative">
+              <a href="/" class="absolute left-0">
+                <Button>
+                  Back
+                </Button>
+              </a>
+              {recipeDetail.title}
+            </h1>
           </div>
-          <p class="mt-1 text-lg text-gray-500 text-center">
-            This is a step by step guide to make the perfect apple pie for your family and friends.
-          </p>
+          <div class="mt-1 text-lg text-gray-500 text-center">
+            <Tags tags={["simple", "fast"]} />
+            <p >
+              {recipeDetail.description}
+              <br/>
+              預估時間：{GetEstimatedTimeText(recipeDetail.estimatedTime)}
+            </p>
+          </div>
         </div>
         <div id="contentContainer">
           <Tabs activeType="ingredients" recipeId={id} />
           <div class="pt-2 w-full">
-            <img
-              src="/public/placeholder.svg"
-              alt="Step 1"
-              class="rounded-md object-cover w-1/3 inline-block mr-5"
-              style="aspect-ratio: 100 / 100; object-fit: cover;"
-            /> 
             {/* FIXME */}
             <Ingredients ingredients={recipeDetail.ingredients} seasonings={[]}/>
           </div>

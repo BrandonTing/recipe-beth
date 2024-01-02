@@ -40,8 +40,8 @@ export const recipe = new Elysia({
         const ingredientsOptions = await db.query.ingredients.findMany();
 
         return (
-            <div id="advancedSearchModal" class="fixed flex items-center justify-center w-screen h-screen left-0 top-0 ">
-                <div class="bg-white shadow-lg opacity-100 p-5 ">
+            <div id="advancedSearchModal" class="fixed flex items-baseline justify-center w-screen h-screen left-0 top-40 ">
+                <div class="bg-white shadow-lg border opacity-100 p-5 ">
                     <div class="flex items-start justify-between">
                         <h2 class="text-2xl font-semibold">Advanced Search</h2>
                         <button
@@ -77,6 +77,7 @@ export const recipe = new Elysia({
                             hx-swap="delete"
                         >
                             <div class="grid grid-cols-2 gap-2">
+                                {/* TODO add search by tags */}
                                 <label
                                     class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base px-1"
                                     for="ingredient"

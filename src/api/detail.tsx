@@ -33,12 +33,6 @@ export const detail = new Elysia({
                     <>
                         <Tabs activeType="ingredients" recipeId={id}  />
                         <div class="pt-2 w-full">
-                            <img
-                                src="/public/placeholder.svg"
-                                alt="Step 1"
-                                class="rounded-md object-cover w-1/3 inline-block mr-5"
-                                style="aspect-ratio: 100 / 100; object-fit: cover;"
-                            />
                             {/* FIXME */}
                             <Ingredients ingredients={detail.ingredients} seasonings={[]}/>
                         </div>
@@ -49,12 +43,6 @@ export const detail = new Elysia({
                     <>
                         <Tabs activeType="steps" recipeId={id} />
                         <div class="pt-2 w-full">
-                        <img
-                            src="/public/placeholder.svg"
-                            alt="Step 1"
-                            class="rounded-md object-cover w-1/3 inline-block mr-5"
-                            style="aspect-ratio: 100 / 100; object-fit: cover;"
-                        /> 
                             <Steps steps={detail.steps}  />
                         </div>
                     </> 
@@ -64,12 +52,6 @@ export const detail = new Elysia({
                     <>
                         <Tabs activeType="references" recipeId={id}  />
                         <div class="pt-2 w-full">
-                            <img
-                            src="/public/placeholder.svg"
-                            alt="Step 1"
-                            class="rounded-md object-cover w-1/3 inline-block mr-5"
-                            style="aspect-ratio: 100 / 100; object-fit: cover;"
-                            /> 
                             <Reference />
                         </div>
                     </> 
