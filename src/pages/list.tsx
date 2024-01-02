@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { BaseHtml } from "../components/base";
 import { ctx } from "../context";
-import Card from "../components/card";
+import Table from "../components/table";
 import Button from "../components/ui/button";
 import { db } from "../db";
 import { desc } from "drizzle-orm";
@@ -17,7 +17,8 @@ export const list = new Elysia()
       columns: {
         id: true,
         title: true,
-        description: true
+        description: true,
+        estimatedTime: true,
       }
     });
     return htmlStream(() => (
@@ -59,19 +60,7 @@ export const list = new Elysia()
             </div>
           </div>
           <p id="listLoading" class="hidden [&.htmx-request]:block">loading...</p>
-          <div class=" grid grid-cols-1 md:grid-cols-2 gap-8" id="cardsContainer">
-            {
-              recipes.length ? (
-                <>
-                  {
-                    recipes.map(recipe => (
-                      <Card recipe={recipe}/>
-                    ))
-                  }
-                </>                
-              ) : <p>目前尚未登錄任何食譜，踏出成為料理王的第一步吧！</p>
-            }
-          </div>
+          <Table recipes={recipes}/>
         </main>
       </BaseHtml>
     ));

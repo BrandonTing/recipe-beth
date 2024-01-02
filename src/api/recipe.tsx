@@ -2,10 +2,11 @@ import Elysia, { t } from "elysia";
 import Card from "../components/card";
 import { ctx } from "../context";
 import { db } from "../db";
-import { recipeIngredients,  recipes, steps } from "../db/schema";
+import { Recipes, recipeIngredients,  recipes, steps } from "../db/schema";
 import { and, arrayContains, desc, eq, inArray, like, lte } from "drizzle-orm";
 import Button from "../components/ui/button";
 import { IngredientInput } from "../components/search/ingredient";
+import Table from "../components/table";
 
 export const recipe = new Elysia({
     prefix: "/recipe"
@@ -18,20 +19,15 @@ export const recipe = new Elysia({
                 // FIXME add pagination
                 limit: 10,
                 columns: {
-                id: true,
-                title: true,
-                description: true
-                }
+                    id: true,
+                    title: true,
+                    description: true,
+                    estimatedTime: true
+                },
             });
 
             return (
-                <>
-                    {
-                        filteredRecipes.map(recipe => (
-                            <Card recipe={recipe}/>
-                        ))
-                    }
-                </>
+                <Table recipes={filteredRecipes} />
             )
         },   
         {
@@ -131,11 +127,11 @@ export const recipe = new Elysia({
             .leftJoin(recipeIngredients, eq(recipeIngredients.recipeID, recipes.id))    
             .where(inArray(recipeIngredients.name, [...filters.keys()]))
         
-        let filteredRecipesMap = new Map<string, {id: string, description: string, title: string, ingredients: Record<string, number>}>()
+        let filteredRecipesMap = new Map<string, Pick<Recipes, "id" | "title" | "description" | "estimatedTime"> & {ingredients: Record<string, number>}>()
         rawdRecipes.forEach(recipe => {
             if(recipe.recipe_ingredients) {
                 if(filteredRecipesMap.has(recipe.recipes.id)) {
-                    const {id, ingredients, title, description} = filteredRecipesMap.get(recipe.recipes.id)!;
+                    const {id, ingredients, title, description, estimatedTime} = filteredRecipesMap.get(recipe.recipes.id)!;
                     filteredRecipesMap.set(recipe.recipes.id, {
                         id,
                         title,
@@ -143,17 +139,19 @@ export const recipe = new Elysia({
                         ingredients: {
                             ...ingredients,
                             [recipe.recipe_ingredients?.name]: recipe.recipe_ingredients?.amount
-                        }
+                        },
+                        estimatedTime
                     })        
                 } else {
-                    const {id, title, description} = recipe.recipes;
+                    const {id, title, description, estimatedTime} = recipe.recipes;
                     filteredRecipesMap.set(id, {
                         id,
                         title,
                         description, 
                         ingredients: {
                             [recipe.recipe_ingredients?.name]: recipe.recipe_ingredients?.amount
-                        }
+                        },
+                        estimatedTime
                     })        
                 }
             }
@@ -182,19 +180,7 @@ export const recipe = new Elysia({
                     }
                 </p>
 
-                <div class=" grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {
-                        filteredRecipes.length ? (
-                            <>
-                                {
-                                    filteredRecipes.map(recipe => (
-                                    <Card recipe={recipe}/>
-                                    ))
-                                }
-                            </>                
-                        ) : <p>目前尚未登錄任何食譜，踏出成為料理王的第一步吧！</p>
-                    }
-                </div>
+                <Table recipes={filteredRecipes} />
             </div>
         )
     }, {

@@ -3,9 +3,9 @@
   "module": "src/index.tsx",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"bun run --hot src/index.tsx\"  \"bun run tw:dev\"  \"bun run liveReload\"",
+    "dev": "concurrently  \"bun --bun run tw:dev\"  \"bun --bun run liveReload\" \"bun --bun run --hot src/index.tsx\"  ",
     "liveReload": "bunx beth-stack",
-    "start": "bun run src/index.tsx",
+    "start": "bun --bun run --hot src/index.tsx",
     "tw": "bunx tailwindcss -i ./src/styles.css -o ./public/dist/styles.css",
     "tw:dev": "bunx tailwindcss -i ./src/styles.css -o ./public/dist/styles.css --watch",
     "typecheck": "bunx --bun tsc",
