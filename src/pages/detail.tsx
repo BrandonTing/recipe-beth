@@ -10,60 +10,61 @@ import { recipes } from "../db/schema";
 import { GetEstimatedTimeText } from "../lib/util";
 import { Tags } from "../components/tags";
 
-export const detail = new Elysia()
-  .use(ctx)
-  .get("/detail/:id", async ({ htmlStream, params: {id} }) => {
-    const recipeDetail = await db.query.recipes.findFirst({
-      where: eq(recipes.id, id),
-      with: {
-        ingredients: {
-          with: {
-            ingredient: true
-          }
-        },
-        steps: true
-      }
-    })
-    if(!recipeDetail) {
-      throw new NotFoundError("Target recipe does not exist! Please try again.")
-    }
-    // TODO get ingredients data
-    return htmlStream(() => (
-      <BaseHtml>
-        <div class="px-4">
-          <div class="flex items-center justify-center px-4 py-6 sm:px-0">
-            
-            <h1 class="text-4xl font-bold w-full text-gray-900 text-center relative">
-              <a href="/" class="absolute left-0">
-                <Button>
-                  Back
-                </Button>
-              </a>
-              {recipeDetail.title}
-            </h1>
-          </div>
-          <div class="mt-1 text-lg text-gray-500 text-center">
-            <Tags tags={["simple", "fast"]} />
-            <p >
-              {recipeDetail.description}
-              <br/>
-              預估時間：{GetEstimatedTimeText(recipeDetail.estimatedTime)}
-            </p>
-          </div>
-        </div>
-        <div id="contentContainer">
-          <Tabs activeType="ingredients" recipeId={id} />
-          <div class="pt-2 w-full">
-            {/* FIXME */}
-            <Ingredients ingredients={recipeDetail.ingredients} seasonings={[]}/>
-          </div>
-        </div>
-      </BaseHtml>
-    ));
-  },
-  {
-    params: t.Object({
-      id: t.String()
-    }),
-  },
+export const detail = new Elysia().use(ctx).get(
+    "/detail/:id",
+    async ({ htmlStream, params: { id } }) => {
+        const recipeDetail = await db.query.recipes.findFirst({
+            where: eq(recipes.id, id),
+            with: {
+                ingredients: {
+                    with: {
+                        ingredient: true,
+                    },
+                },
+                steps: true,
+            },
+        });
+        if (!recipeDetail) {
+            throw new NotFoundError(
+                "Target recipe does not exist! Please try again.",
+            );
+        }
+        return htmlStream(() => (
+            <BaseHtml>
+                <div class="px-4">
+                    <div class="flex items-center justify-center px-4 py-6 sm:px-0">
+                        <h1 class="text-4xl font-bold w-full text-gray-900 text-center relative">
+                            <a href="/" class="absolute left-0">
+                                <Button>Back</Button>
+                            </a>
+                            {recipeDetail.title}
+                        </h1>
+                    </div>
+                    <div class="mt-1 text-lg text-gray-500 text-center">
+                        <Tags tags={["simple", "fast"]} />
+                        <p>
+                            {recipeDetail.description}
+                            <br />
+                            預估時間：
+                            {GetEstimatedTimeText(recipeDetail.estimatedTime)}
+                        </p>
+                    </div>
+                </div>
+                <div id="contentContainer">
+                    <Tabs activeType="ingredients" recipeId={id} />
+                    <div class="pt-2 w-full">
+                        <Ingredients
+                            ingredients={recipeDetail.ingredients}
+                            seasonings={[]}
+                        />
+                    </div>
+                </div>
+            </BaseHtml>
+        ));
+    },
+    {
+        params: t.Object({
+            id: t.String(),
+        }),
+    },
 );

@@ -33,7 +33,8 @@
     // "noImplicitReturns": true
   },
   "include": [
-    ".eslintrc.js",
+    ".eslintrc.cjs",
+    "prettier.config.js",
     "src",
     "./reset.d.ts",
   ]

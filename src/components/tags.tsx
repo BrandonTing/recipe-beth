@@ -1,17 +1,15 @@
-export type TagsProps = {
-    tags: Array<string>
+export interface TagsProps {
+    tags: string[];
 }
 
-export function Tags ({tags}: TagsProps) {
+export function Tags({ tags }: TagsProps) {
     return (
         <>
-            {   
-                ["simple", "fast"].map(tag => (
-                    <span class="h-6 leading-6 inline-block bg-green-200 text-green-800 text-xs px-2 rounded-full uppercase font-semibold tracking-wide">
-                        {tag}
-                    </span>
-                ))
-            }
+            {tags.map((tag) => (
+                <span class="inline-block h-6 rounded-full bg-green-200 px-2 text-xs font-semibold uppercase leading-6 tracking-wide text-green-800">
+                    {tag}
+                </span>
+            ))}
         </>
-    )
+    );
 }

@@ -4,8 +4,8 @@ import { config } from "../config";
 import * as schema from "./schema";
 
 const options = {
-  url: config.env.DATABASE_URL,
-  authToken: config.env.DATABASE_AUTH_TOKEN!,
+    url: config.env.DATABASE_URL,
+    authToken: config.env.DATABASE_AUTH_TOKEN,
 } satisfies Config;
 
 export const client = createClient(options);
