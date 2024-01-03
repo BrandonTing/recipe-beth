@@ -5,7 +5,13 @@ import Table from "../components/table";
 import Button from "../components/ui/button";
 import { ctx } from "../context";
 import { db } from "../db";
-import { recipeIngredients, Recipes, recipes, steps } from "../db/schema";
+import {
+    recipeIngredients,
+    Recipes,
+    recipes,
+    recipeTags,
+    steps,
+} from "../db/schema";
 
 export const recipe = new Elysia({
     prefix: "/recipe",
@@ -250,6 +256,7 @@ export const recipe = new Elysia({
                 await db
                     .delete(recipeIngredients)
                     .where(eq(recipeIngredients.recipeID, id));
+                await db.delete(recipeTags).where(eq(recipeTags.recipeID, id));
                 await db.delete(steps).where(eq(steps.recipeID, id));
                 await db.delete(recipes).where(eq(recipes.id, id));
                 set.headers["HX-Refresh"] = "true";

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "5c728439-cf58-4878-9c51-b731e567c7e8",
+  "id": "f1c182b1-5107-4b92-921a-4af5fe9ecd7a",
   "prevId": "a8e11a05-a841-4c8a-8089-59531ee02956",
   "tables": {
     "ingredients": {
@@ -77,6 +77,63 @@
         "recipe_ingredients_recipe_id_recipes_id_fk": {
           "name": "recipe_ingredients_recipe_id_recipes_id_fk",
           "tableFrom": "recipe_ingredients",
+          "tableTo": "recipes",
+          "columnsFrom": [
+            "recipe_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "recipe_tags": {
+      "name": "recipe_tags",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recipe_id": {
+          "name": "recipe_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "recipe_tags_label_tags_label_fk": {
+          "name": "recipe_tags_label_tags_label_fk",
+          "tableFrom": "recipe_tags",
+          "tableTo": "tags",
+          "columnsFrom": [
+            "label"
+          ],
+          "columnsTo": [
+            "label"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "recipe_tags_recipe_id_recipes_id_fk": {
+          "name": "recipe_tags_recipe_id_recipes_id_fk",
+          "tableFrom": "recipe_tags",
           "tableTo": "recipes",
           "columnsFrom": [
             "recipe_id"
@@ -203,44 +260,16 @@
     "tags": {
       "name": "tags",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
         "label": {
           "name": "label",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "recipe_id": {
-          "name": "recipe_id",
-          "type": "text",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         }
       },
       "indexes": {},
-      "foreignKeys": {
-        "tags_recipe_id_recipes_id_fk": {
-          "name": "tags_recipe_id_recipes_id_fk",
-          "tableFrom": "tags",
-          "tableTo": "recipes",
-          "columnsFrom": [
-            "recipe_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     }

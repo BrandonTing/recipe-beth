@@ -20,6 +20,7 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
                 class="border-b border-gray-900/10 pb-10"
                 hx-trigger="submit"
                 hx-post="/api/new"
+                hx-swap="none"
             >
                 <div class="flex flex-col gap-2">
                     <div>
@@ -118,23 +119,6 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
                     <div>
                         <StepInput count={1} />
                     </div>
-                    {/* 20231104 先不做參考資料 */}
-                    {/* 
-            <div>
-              <label for="reference" class="block text-base font-medium leading-6 text-gray-900">參考資料</label>
-              <ReferenceInput/>
-              <button  
-                  hx-target="previous div"
-                  hx-get="/api/new/referenceInput"
-                  hx-trigger="click"
-                  hx-swap="afterend"
-                  type="button" class="w-full border-dashed  text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-base py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700 flex justify-center" >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                  </svg>
-                </button>
-            </div> */}
-
                     <button
                         type="submit"
                         class="w-full rounded-lg bg-blue-700 px-5 py-2.5 text-center text-base font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 sm:w-auto dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"

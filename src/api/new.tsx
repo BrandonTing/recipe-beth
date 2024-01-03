@@ -14,8 +14,10 @@ import {
     RecipeIngredient,
     recipeIngredients,
     recipes,
+    recipeTags,
     Step,
     steps,
+    tags as tagsTable,
 } from "../db/schema";
 import { TagsInput } from "../components/form/tagsInput";
 
@@ -35,6 +37,7 @@ export const createNew = new Elysia({
                 ingredientUnit,
                 stepTitle,
                 stepDescription,
+                tags,
             },
             set,
             log,
@@ -114,6 +117,13 @@ export const createNew = new Elysia({
                             .join(", ")}`,
                     );
                 }
+                const tagList = tags.split(",").map((tag) => ({ label: tag }));
+                if (tagList.length) {
+                    await db
+                        .insert(tagsTable)
+                        .values(tagList)
+                        .onConflictDoNothing();
+                }
                 const recipe = await db
                     .insert(recipes)
                     .values({
@@ -130,15 +140,25 @@ export const createNew = new Elysia({
                         recipeID,
                     })),
                 );
+                log.info("created new recipeIngredients");
+                await db.insert(recipeTags).values(
+                    tagList.map((tag) => ({
+                        ...tag,
+                        recipeID,
+                    })),
+                );
+                log.info("created new recipeTags");
                 await db.insert(steps).values(
                     recipeSteps.map((step) => ({
                         ...step,
                         recipeID,
                     })),
                 );
-                return (set.redirect = "/");
+                log.info("created new steps");
+
+                set.headers["HX-Redirect"] = "/";
             } catch (err) {
-                console.error(`[create new recipe] error: ${err as string}`);
+                log.error(`[create new recipe] error: ${err as string}`);
                 throw Error("Failed to create new recipe");
             }
         },
@@ -148,6 +168,7 @@ export const createNew = new Elysia({
                     title: t.String(),
                     description: t.String(),
                     estimatedTime: t.Numeric(),
+                    tags: t.String(),
                 }),
                 t.Union([
                     t.Object({

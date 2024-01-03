@@ -50,21 +50,29 @@ export const recipeIngredients = sqliteTable("recipe_ingredients", {
 export type RecipeIngredient = InferInsertModel<typeof recipeIngredients>;
 
 export const tags = sqliteTable("tags", {
+    label: text("label").primaryKey().notNull(),
+});
+
+export type Tag = InferInsertModel<typeof tags>;
+
+export const recipeTags = sqliteTable("recipe_tags", {
     id: text("id")
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
-    label: text("label").notNull(),
+    label: text("label")
+        .references(() => tags.label)
+        .notNull(),
     recipeID: text("recipe_id")
         .references(() => recipes.id)
         .notNull(),
 });
 
-export type Tag = InferInsertModel<typeof tags>;
+export type RecipeTags = InferInsertModel<typeof recipeTags>;
 
 export const recipeRelations = relations(recipes, ({ many }) => ({
     ingredients: many(recipeIngredients),
     steps: many(steps),
-    tags: many(tags),
+    tags: many(recipeTags),
 }));
 
 export const stepRelations = relations(steps, ({ one }) => ({
@@ -92,9 +100,17 @@ export const recipeIngredientRelations = relations(
     }),
 );
 
-export const tagRelations = relations(tags, ({ one }) => ({
+export const tagRelations = relations(tags, ({ many }) => ({
+    recipeTags: many(recipeTags),
+}));
+
+export const recipeTagsRelations = relations(recipeTags, ({ one }) => ({
     recipe: one(recipes, {
-        fields: [tags.recipeID],
+        fields: [recipeTags.recipeID],
         references: [recipes.id],
+    }),
+    ingredient: one(tags, {
+        fields: [recipeTags.label],
+        references: [tags.label],
     }),
 }));
