@@ -9,10 +9,10 @@ interface ListProps {
 export default function ({ recipes }: ListProps) {
     return recipes.length ? (
         <table
-            class="w-full text-left text-base text-gray-500 dark:text-gray-400"
+            class="w-full text-base text-left text-gray-500 dark:text-gray-400"
             id="cardsContainer"
         >
-            <thead class="bg-gray-50 uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400 ">
+            <thead class="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 ">
                 <tr>
                     <th scope="col" class="px-6 py-3">
                         食譜名稱
@@ -30,17 +30,17 @@ export default function ({ recipes }: ListProps) {
             </thead>
             <tbody>
                 {recipes.map((recipe) => (
-                    <tr class="border-b bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-600">
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                         <th
                             scope="row"
-                            class="cursor-pointer whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white"
+                            class="px-6 py-4 font-medium cursor-pointer text-gray-900 whitespace-nowrap dark:text-white"
                         >
                             <a href={`/detail/${recipe.id}`} class="underline">
                                 {/* TODO click name, get detail content */}
                                 {recipe.title}
                             </a>
                         </th>
-                        <td class="flex gap-1 px-6 py-4">
+                        <td class="px-6 py-4 flex gap-1">
                             <Tags tags={["simple", "fast"]} />
                         </td>
                         <td class="px-6 py-4">
