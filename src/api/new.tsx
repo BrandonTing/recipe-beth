@@ -246,6 +246,25 @@ export const createNew = new Elysia({
         },
     )
     .post(
+        "/addTag/:newTag",
+        function ({ body: { tags }, params: { newTag } }) {
+            // ignore existing tag
+            const existingTags = new Set<string>(tags ? tags.split(",") : []);
+            if (!existingTags.has(newTag)) {
+                existingTags.add(newTag);
+            }
+            return <TagsInput tags={Array.from(existingTags)} />;
+        },
+        {
+            body: t.Object({
+                tags: t.String(),
+            }),
+            params: t.Object({
+                newTag: t.String(),
+            }),
+        },
+    )
+    .post(
         "/addTag",
         function ({ body: { newTag, tags } }) {
             // ignore existing tag

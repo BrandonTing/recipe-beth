@@ -36,7 +36,6 @@ export default function ({ recipes }: ListProps) {
                             class="px-6 py-4 font-medium cursor-pointer text-gray-900 whitespace-nowrap dark:text-white"
                         >
                             <a href={`/detail/${recipe.id}`} class="underline">
-                                {/* TODO click name, get detail content */}
                                 {recipe.title}
                             </a>
                         </th>
@@ -56,7 +55,6 @@ export default function ({ recipes }: ListProps) {
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                 >
-                                    {" "}
                                     <g>
                                         {" "}
                                         <path
