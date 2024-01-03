@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, like } from "drizzle-orm";
 import Elysia, { t } from "elysia";
 import {
     IngredientInput,
@@ -259,6 +259,26 @@ export const createNew = new Elysia({
             body: t.Object({
                 newTag: t.String(),
                 tags: t.String(),
+            }),
+        },
+    )
+    .get(
+        "/tagOptions",
+        async function ({ query: { newTag } }) {
+            // TODO render tag select options
+            try {
+                const relatedTags = await db
+                    .select()
+                    .from(tagsTable)
+                    .where(like(tagsTable.label, `%${newTag}%`));
+                return <p>{JSON.stringify(relatedTags)}</p>;
+            } catch (err) {
+                return <p>no related tags</p>;
+            }
+        },
+        {
+            query: t.Object({
+                newTag: t.String(),
             }),
         },
     );
