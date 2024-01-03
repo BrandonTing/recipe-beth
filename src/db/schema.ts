@@ -49,9 +49,22 @@ export const recipeIngredients = sqliteTable("recipe_ingredients", {
 
 export type RecipeIngredient = InferInsertModel<typeof recipeIngredients>;
 
+export const tags = sqliteTable("tags", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => crypto.randomUUID()),
+    label: text("label").notNull(),
+    recipeID: text("recipe_id")
+        .references(() => recipes.id)
+        .notNull(),
+});
+
+export type Tag = InferInsertModel<typeof tags>;
+
 export const recipeRelations = relations(recipes, ({ many }) => ({
     ingredients: many(recipeIngredients),
     steps: many(steps),
+    tags: many(tags),
 }));
 
 export const stepRelations = relations(steps, ({ one }) => ({
@@ -78,3 +91,10 @@ export const recipeIngredientRelations = relations(
         }),
     }),
 );
+
+export const tagRelations = relations(tags, ({ one }) => ({
+    recipe: one(recipes, {
+        fields: [tags.recipeID],
+        references: [recipes.id],
+    }),
+}));

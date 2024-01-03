@@ -9,7 +9,7 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
         <BaseHtml>
             <div class="flex items-center justify-center px-4 py-4 sm:px-0">
                 <a href="/">
-                    <Button>Back</Button>
+                    <Button>上一頁</Button>
                 </a>
                 <h1 class="mx-auto text-4xl font-bold text-gray-900">
                     建立新食譜
