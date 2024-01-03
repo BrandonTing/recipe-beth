@@ -36,7 +36,7 @@ export const list = new Elysia().use(ctx).get("/", async ({ htmlStream }) => {
                         <Button
                             hx-get="/api/recipe"
                             hx-include="input[name='keyword']"
-                            hx-target="#cardsContainer"
+                            hx-target="#tableContainer"
                             hx-swap="innerHTML"
                             hx-indicator="#listLoading"
                         >

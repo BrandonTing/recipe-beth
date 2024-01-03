@@ -3,7 +3,7 @@
   "module": "src/index.tsx",
   "type": "module",
   "scripts": {
-    "dev": "concurrently  \"bun --bun run tw:dev\"  \"bun --bun run liveReload\" \"bun --bun run --hot src/index.tsx\"  ",
+    "dev": "concurrently \"bun run liveReload\" \"bun run --hot src/index.tsx\"  ",
     "liveReload": "bunx beth-stack",
     "start": "bun --bun run --hot src/index.tsx",
     "tw": "bunx tailwindcss -i ./src/styles.css -o ./public/dist/styles.css",

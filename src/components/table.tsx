@@ -9,8 +9,8 @@ interface ListProps {
 export default function ({ recipes }: ListProps) {
     return recipes.length ? (
         <table
-            class="w-full text-base text-left text-gray-500 dark:text-gray-400"
-            id="cardsContainer"
+            class="w-full text-base text-center text-gray-500 dark:text-gray-400"
+            id="tableContainer"
         >
             <thead class="text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 ">
                 <tr>
@@ -40,14 +40,14 @@ export default function ({ recipes }: ListProps) {
                                 {recipe.title}
                             </a>
                         </th>
-                        <td class="px-6 py-4 flex gap-1">
+                        <td class="px-6 py-4">
                             <Tags tags={["simple", "fast"]} />
                         </td>
                         <td class="px-6 py-4">
                             {GetEstimatedTimeText(recipe.estimatedTime)}
                         </td>
                         <td class="px-6 py-4">
-                            <div class="w-6">
+                            <div class="w-6 mx-auto">
                                 <svg
                                     class="cursor-pointer"
                                     hx-swap="none"

@@ -213,7 +213,7 @@ export const recipe = new Elysia({
                 },
             );
             return (
-                <div id="cardsContainer" hx-swap-oob="true">
+                <div id="tableContainer" hx-swap-oob="true">
                     <p class="py-2">
                         目前查詢條件：
                         {[...filters.entries()].map(([name, amount]) => (
