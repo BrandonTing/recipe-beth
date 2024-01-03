@@ -17,6 +17,7 @@ import {
     Step,
     steps,
 } from "../db/schema";
+import { TagsInput } from "../components/form/tagsInput";
 
 export const createNew = new Elysia({
     prefix: "/new",
@@ -220,6 +221,23 @@ export const createNew = new Elysia({
         {
             query: t.Object({
                 ingredientName: t.String(),
+            }),
+        },
+    )
+    .post(
+        "/addTag",
+        function ({ body: { newTag, tags } }) {
+            // ignore existing tag
+            const existingTags = new Set<string>(tags ? tags.split(",") : []);
+            if (!existingTags.has(newTag)) {
+                existingTags.add(newTag);
+            }
+            return <TagsInput tags={Array.from(existingTags)} />;
+        },
+        {
+            body: t.Object({
+                newTag: t.String(),
+                tags: t.String(),
             }),
         },
     );

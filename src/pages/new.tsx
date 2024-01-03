@@ -3,6 +3,7 @@ import { BaseHtml } from "../components/base";
 import { IngredientInput, StepInput } from "../components/form/inputs";
 import Button from "../components/ui/button";
 import { ctx } from "../context";
+import { TagsInput } from "../components/form/tagsInput";
 
 export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
     return htmlStream(() => (
@@ -55,7 +56,16 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
                             />
                         </div>
                     </div>
+                    <div>
+                        <label
+                            for="tags"
+                            class="block text-base font-medium leading-6 text-gray-900"
+                        >
+                            標籤
+                        </label>
 
+                        <TagsInput />
+                    </div>
                     <div>
                         <label
                             for="estimatedTime"
