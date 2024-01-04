@@ -73,11 +73,13 @@ export const list = new Elysia().use(ctx).get("/", async ({ htmlStream }) => {
                 <p id="listLoading" class="hidden [&.htmx-request]:block">
                     loading...
                 </p>
-                <Table
-                    page={initPage}
-                    total={count?.count ?? 0}
-                    recipes={recipes}
-                />
+                <div id="tableContainer">
+                    <Table
+                        page={initPage}
+                        total={count?.count ?? 0}
+                        recipes={recipes}
+                    />
+                </div>
             </main>
         </BaseHtml>
     ));
