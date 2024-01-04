@@ -284,15 +284,37 @@ export const createNew = new Elysia({
     .get(
         "/tagOptions",
         async function ({ query: { newTag } }) {
-            // TODO render tag select options
             try {
                 const relatedTags = await db
                     .select()
                     .from(tagsTable)
                     .where(like(tagsTable.label, `%${newTag}%`));
-                return <p>{JSON.stringify(relatedTags)}</p>;
+                if (!relatedTags.length) {
+                    return "";
+                }
+                return (
+                    <div class="bg-white divide-y divide-gray-100 rounded-lg shadow  dark:bg-gray-700 border ">
+                        <ul
+                            class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                            aria-labelledby="dropdownDefaultButton"
+                        >
+                            {relatedTags.map(({ label }) => (
+                                <li
+                                    hx-trigger="click"
+                                    hx-post={`/api/new/addTag/${label}`}
+                                    hx-params="tags"
+                                    hx-target="#tagsInputContainer"
+                                    hx-swap="outerHtml"
+                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"
+                                >
+                                    {label}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
             } catch (err) {
-                return <p>no related tags</p>;
+                return "";
             }
         },
         {
