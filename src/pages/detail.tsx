@@ -35,7 +35,7 @@ export const detail = new Elysia().use(ctx).get(
                     <div class="flex items-center justify-center px-4 py-6 sm:px-0">
                         <h1 class="text-4xl font-bold w-full text-gray-900 text-center relative">
                             <a href="/" class="absolute left-0">
-                                <Button>Back</Button>
+                                <Button>上一頁</Button>
                             </a>
                             {recipeDetail.title}
                         </h1>

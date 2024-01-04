@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import Elysia, { NotFoundError, t } from "elysia";
 import Ingredients from "../components/ingredients";
-import Reference from "../components/reference";
 import Steps from "../components/steps";
 import Tabs from "../components/tabs";
 import { db } from "../db";
@@ -49,15 +48,6 @@ export const detail = new Elysia({
                         <Tabs activeType="steps" recipeId={id} />
                         <div class="w-full pt-2">
                             <Steps steps={detail.steps} />
-                        </div>
-                    </>
-                );
-            case "references":
-                return (
-                    <>
-                        <Tabs activeType="references" recipeId={id} />
-                        <div class="w-full pt-2">
-                            <Reference />
                         </div>
                     </>
                 );

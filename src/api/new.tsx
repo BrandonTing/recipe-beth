@@ -1,4 +1,4 @@
-import { eq, inArray } from "drizzle-orm";
+import { eq, inArray, like } from "drizzle-orm";
 import Elysia, { t } from "elysia";
 import {
     IngredientInput,
@@ -14,9 +14,12 @@ import {
     RecipeIngredient,
     recipeIngredients,
     recipes,
+    recipeTags,
     Step,
     steps,
+    tags as tagsTable,
 } from "../db/schema";
+import { TagsInput } from "../components/form/tagsInput";
 
 export const createNew = new Elysia({
     prefix: "/new",
@@ -34,6 +37,7 @@ export const createNew = new Elysia({
                 ingredientUnit,
                 stepTitle,
                 stepDescription,
+                tags,
             },
             set,
             log,
@@ -113,6 +117,13 @@ export const createNew = new Elysia({
                             .join(", ")}`,
                     );
                 }
+                const tagList = tags.split(",").map((tag) => ({ label: tag }));
+                if (tagList.length) {
+                    await db
+                        .insert(tagsTable)
+                        .values(tagList)
+                        .onConflictDoNothing();
+                }
                 const recipe = await db
                     .insert(recipes)
                     .values({
@@ -129,15 +140,25 @@ export const createNew = new Elysia({
                         recipeID,
                     })),
                 );
+                log.info("created new recipeIngredients");
+                await db.insert(recipeTags).values(
+                    tagList.map((tag) => ({
+                        ...tag,
+                        recipeID,
+                    })),
+                );
+                log.info("created new recipeTags");
                 await db.insert(steps).values(
                     recipeSteps.map((step) => ({
                         ...step,
                         recipeID,
                     })),
                 );
-                return (set.redirect = "/");
+                log.info("created new steps");
+
+                set.headers["HX-Redirect"] = "/";
             } catch (err) {
-                console.error(`[create new recipe] error: ${err as string}`);
+                log.error(`[create new recipe] error: ${err as string}`);
                 throw Error("Failed to create new recipe");
             }
         },
@@ -147,6 +168,7 @@ export const createNew = new Elysia({
                     title: t.String(),
                     description: t.String(),
                     estimatedTime: t.Numeric(),
+                    tags: t.String(),
                 }),
                 t.Union([
                     t.Object({
@@ -220,6 +242,84 @@ export const createNew = new Elysia({
         {
             query: t.Object({
                 ingredientName: t.String(),
+            }),
+        },
+    )
+    .post(
+        "/addTag/:newTag",
+        function ({ body: { tags }, params: { newTag } }) {
+            // ignore existing tag
+            const existingTags = new Set<string>(tags ? tags.split(",") : []);
+            if (!existingTags.has(newTag)) {
+                existingTags.add(newTag);
+            }
+            return <TagsInput tags={Array.from(existingTags)} />;
+        },
+        {
+            body: t.Object({
+                tags: t.String(),
+            }),
+            params: t.Object({
+                newTag: t.String(),
+            }),
+        },
+    )
+    .post(
+        "/addTag",
+        function ({ body: { newTag, tags } }) {
+            // ignore existing tag
+            const existingTags = new Set<string>(tags ? tags.split(",") : []);
+            if (!existingTags.has(newTag)) {
+                existingTags.add(newTag);
+            }
+            return <TagsInput tags={Array.from(existingTags)} />;
+        },
+        {
+            body: t.Object({
+                newTag: t.String(),
+                tags: t.String(),
+            }),
+        },
+    )
+    .get(
+        "/tagOptions",
+        async function ({ query: { newTag } }) {
+            try {
+                const relatedTags = await db
+                    .select()
+                    .from(tagsTable)
+                    .where(like(tagsTable.label, `%${newTag}%`));
+                if (!relatedTags.length) {
+                    return "";
+                }
+                return (
+                    <div class="bg-white divide-y divide-gray-100 rounded-lg shadow  dark:bg-gray-700 border ">
+                        <ul
+                            class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                            aria-labelledby="dropdownDefaultButton"
+                        >
+                            {relatedTags.map(({ label }) => (
+                                <li
+                                    hx-trigger="click"
+                                    hx-post={`/api/new/addTag/${label}`}
+                                    hx-params="tags"
+                                    hx-target="#tagsInputContainer"
+                                    hx-swap="outerHtml"
+                                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer"
+                                >
+                                    {label}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            } catch (err) {
+                return "";
+            }
+        },
+        {
+            query: t.Object({
+                newTag: t.String(),
             }),
         },
     );

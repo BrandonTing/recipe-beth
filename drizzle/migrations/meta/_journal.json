@@ -8,6 +8,13 @@
       "when": 1699938928191,
       "tag": "0000_open_bullseye",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1704266816819,
+      "tag": "0001_fresh_naoko",
+      "breakpoints": true
     }
   ]
 }

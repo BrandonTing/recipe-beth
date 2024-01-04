@@ -21,7 +21,7 @@ RUN apt-get update -qq && \
     apt-get install -y build-essential pkg-config python-is-python3
 
 # Install node modules
-COPY --link bun.lockb package.json pnpm-lock.yaml ./
+COPY --link bun.lockb package.json ./
 RUN bun install --frozen-lockfile --ci
 
 # Copy application code
