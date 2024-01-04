@@ -3,7 +3,7 @@ import Button from "../ui/button";
 
 export function TagsInput({ tags = [] }: { tags?: string[] }) {
     return (
-        <div class="mt-2">
+        <div class="mt-2" id="tagsInputContainer">
             <div class="flex relative" id="tagInput">
                 <input
                     placeholder="新增標籤"
