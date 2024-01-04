@@ -6,12 +6,20 @@ import Button from "../components/ui/button";
 import { ctx } from "../context";
 import { db } from "../db";
 import { recipes as receipeSchema } from "../db/schema";
+import { PAGE_SIZE } from "../config";
+import { sql } from "drizzle-orm";
 
 export const list = new Elysia().use(ctx).get("/", async ({ htmlStream }) => {
+    const initPage = 1;
+    const [count] = await db
+        .select({
+            count: sql`count(*)`.mapWith(Number).as("count"),
+        })
+        .from(receipeSchema);
     const recipes = await db.query.recipes.findMany({
         orderBy: [desc(receipeSchema.createdAt)],
-        // FIXME add pagination
-        limit: 10,
+        limit: PAGE_SIZE,
+        offset: initPage - 1,
         columns: {
             id: true,
             title: true,
@@ -65,7 +73,11 @@ export const list = new Elysia().use(ctx).get("/", async ({ htmlStream }) => {
                 <p id="listLoading" class="hidden [&.htmx-request]:block">
                     loading...
                 </p>
-                <Table recipes={recipes} />
+                <Table
+                    page={initPage}
+                    total={count?.count ?? 0}
+                    recipes={recipes}
+                />
             </main>
         </BaseHtml>
     ));

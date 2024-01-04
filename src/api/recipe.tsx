@@ -1,4 +1,4 @@
-import { desc, eq, inArray, like } from "drizzle-orm";
+import { desc, eq, inArray, like, sql } from "drizzle-orm";
 import Elysia, { t } from "elysia";
 import { IngredientInput } from "../components/search/ingredient";
 import Table from "../components/table";
@@ -12,6 +12,7 @@ import {
     recipeTags,
     steps,
 } from "../db/schema";
+import { PAGE_SIZE } from "../config";
 
 export const recipe = new Elysia({
     prefix: "/recipe",
@@ -20,20 +21,40 @@ export const recipe = new Elysia({
     .get(
         "/",
         async function ({ query: { keyword } }) {
+            const [count] = await db
+                .select({
+                    count: sql`count(*)`.mapWith(Number).as("count"),
+                })
+                .from(recipes);
+
             const filteredRecipes = await db.query.recipes.findMany({
                 where: like(recipes.title, `%${keyword}%`),
                 orderBy: [desc(recipes.createdAt)],
                 // FIXME add pagination
-                limit: 10,
+                limit: PAGE_SIZE,
+                offset: 0,
                 columns: {
                     id: true,
                     title: true,
                     description: true,
                     estimatedTime: true,
                 },
+                with: {
+                    tags: {
+                        columns: {
+                            label: true,
+                        },
+                    },
+                },
             });
 
-            return <Table recipes={filteredRecipes} />;
+            return (
+                <Table
+                    page={1}
+                    total={count?.count ?? 0}
+                    recipes={filteredRecipes}
+                />
+            );
         },
         {
             query: t.Object({
@@ -145,9 +166,13 @@ export const recipe = new Elysia({
             } else {
                 filters.set(ingredient, amount as number);
             }
+            // FIXME 改用find many
 
             const rawdRecipes = await db
-                .select()
+                .select({
+                    id: recipes.id,
+                    recipe_ingredients: recipeIngredients,
+                })
                 .from(recipes)
                 .leftJoin(
                     recipeIngredients,
@@ -157,46 +182,32 @@ export const recipe = new Elysia({
 
             const filteredRecipesMap = new Map<
                 string,
-                Pick<
-                    Recipes,
-                    "id" | "title" | "description" | "estimatedTime"
-                > & {
+                Pick<Recipes, "id"> & {
                     ingredients: Record<string, number>;
                 }
             >();
             rawdRecipes.forEach((recipe) => {
                 if (recipe.recipe_ingredients) {
-                    if (filteredRecipesMap.has(recipe.recipes.id)) {
-                        const {
+                    if (filteredRecipesMap.has(recipe.id)) {
+                        const { id, ingredients } = filteredRecipesMap.get(
+                            recipe.id,
+                        )!;
+                        filteredRecipesMap.set(recipe.id, {
                             id,
-                            ingredients,
-                            title,
-                            description,
-                            estimatedTime,
-                        } = filteredRecipesMap.get(recipe.recipes.id)!;
-                        filteredRecipesMap.set(recipe.recipes.id, {
-                            id,
-                            title,
-                            description,
                             ingredients: {
                                 ...ingredients,
                                 [recipe.recipe_ingredients?.name]:
                                     recipe.recipe_ingredients?.amount,
                             },
-                            estimatedTime,
                         });
                     } else {
-                        const { id, title, description, estimatedTime } =
-                            recipe.recipes;
+                        const { id } = recipe;
                         filteredRecipesMap.set(id, {
                             id,
-                            title,
-                            description,
                             ingredients: {
                                 [recipe.recipe_ingredients?.name]:
                                     recipe.recipe_ingredients?.amount,
                             },
-                            estimatedTime,
                         });
                     }
                 }
@@ -218,6 +229,32 @@ export const recipe = new Elysia({
                     return valid;
                 },
             );
+
+            const count = filteredRecipes.length;
+
+            const recipesToRender = await db.query.recipes.findMany({
+                orderBy: [desc(recipes.createdAt)],
+                limit: PAGE_SIZE,
+                offset: 0,
+                where: inArray(
+                    recipes.id,
+                    filteredRecipes.map((recipe) => recipe.id),
+                ),
+                columns: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    estimatedTime: true,
+                },
+                with: {
+                    tags: {
+                        columns: {
+                            label: true,
+                        },
+                    },
+                },
+            });
+
             return (
                 <div id="tableContainer" hx-swap-oob="true">
                     <p class="py-2">
@@ -229,7 +266,11 @@ export const recipe = new Elysia({
                         ))}
                     </p>
 
-                    <Table recipes={filteredRecipes} />
+                    <Table
+                        recipes={recipesToRender}
+                        page={1}
+                        total={count ?? 0}
+                    />
                 </div>
             );
         },

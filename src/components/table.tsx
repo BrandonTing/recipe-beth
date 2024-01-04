@@ -3,16 +3,18 @@ import { GetEstimatedTimeText } from "../lib/util";
 import { Pagination } from "./pagination";
 import { Tags } from "./tags";
 
-interface ListProps {
+interface IListProps {
     recipes: (Pick<
         Recipes,
         "id" | "title" | "description" | "estimatedTime"
     > & {
-        tags: { label: string }[];
+        tags: { label: string }[] | null;
     })[];
+    page: number;
+    total: number;
 }
 
-export default function ({ recipes }: ListProps) {
+export default function ({ recipes, page, total }: IListProps) {
     if (!recipes.length) {
         return <p>目前尚未登錄任何食譜，踏出成為料理王的第一步吧！</p>;
     }
@@ -53,7 +55,7 @@ export default function ({ recipes }: ListProps) {
                                 </a>
                             </th>
                             <td class="px-6 py-4">
-                                <Tags tags={recipe.tags} />
+                                <Tags tags={recipe.tags ?? []} />
                             </td>
 
                             <td class="px-6 py-4">
@@ -85,7 +87,11 @@ export default function ({ recipes }: ListProps) {
                 </tbody>
             </table>
             {/* TODO pagination  */}
-            <Pagination />
+            <Pagination
+                curPageCounts={recipes.length}
+                page={page}
+                total={total}
+            />
         </>
     );
 }

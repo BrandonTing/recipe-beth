@@ -1,13 +1,23 @@
-export function Pagination() {
+import { PAGE_SIZE } from "../config";
+
+interface PaginationProps {
+    curPageCounts: number;
+    page: number;
+    total: number;
+}
+
+export function Pagination({ page, total, curPageCounts }: PaginationProps) {
+    const lastPage = PAGE_SIZE * (page - 1);
     return (
         <div class="flex items-center justify-between w-full px-4 py-2">
             <p class="text-sm text-gray-500 dark:text-gray-400">
-                Showing 1-10 of 100 results
+                Showing {lastPage + 1}-{lastPage + curPageCounts} of {total}{" "}
+                results
             </p>
             <div class="flex items-center gap-2">
                 <button
                     class="inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3"
-                    disabled
+                    disabled={page === 1}
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -26,7 +36,10 @@ export function Pagination() {
                     </svg>
                     <span class="sr-only">Previous page</span>
                 </button>
-                <button class="inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3">
+                <button
+                    class="inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 rounded-md px-3"
+                    disabled={PAGE_SIZE * page > total}
+                >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
