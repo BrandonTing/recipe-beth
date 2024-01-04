@@ -4,7 +4,12 @@ import { Pagination } from "./pagination";
 import { Tags } from "./tags";
 
 interface ListProps {
-    recipes: Pick<Recipes, "id" | "title" | "description" | "estimatedTime">[];
+    recipes: (Pick<
+        Recipes,
+        "id" | "title" | "description" | "estimatedTime"
+    > & {
+        tags: { label: string }[];
+    })[];
 }
 
 export default function ({ recipes }: ListProps) {
@@ -48,8 +53,9 @@ export default function ({ recipes }: ListProps) {
                                 </a>
                             </th>
                             <td class="px-6 py-4">
-                                <Tags tags={["simple", "fast"]} />
+                                <Tags tags={recipe.tags} />
                             </td>
+
                             <td class="px-6 py-4">
                                 {GetEstimatedTimeText(recipe.estimatedTime)}
                             </td>
