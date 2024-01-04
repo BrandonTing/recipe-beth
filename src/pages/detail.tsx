@@ -22,6 +22,11 @@ export const detail = new Elysia().use(ctx).get(
                     },
                 },
                 steps: true,
+                tags: {
+                    columns: {
+                        label: true,
+                    },
+                },
             },
         });
         if (!recipeDetail) {
@@ -41,7 +46,7 @@ export const detail = new Elysia().use(ctx).get(
                         </h1>
                     </div>
                     <div class="mt-1 text-lg text-gray-500 text-center">
-                        <Tags tags={["simple", "fast"]} />
+                        <Tags tags={recipeDetail.tags} />
                         <p>
                             {recipeDetail.description}
                             <br />
