@@ -18,6 +18,13 @@ export const list = new Elysia().use(ctx).get("/", async ({ htmlStream }) => {
             description: true,
             estimatedTime: true,
         },
+        with: {
+            tags: {
+                columns: {
+                    label: true,
+                },
+            },
+        },
     });
     return htmlStream(() => (
         <BaseHtml>
