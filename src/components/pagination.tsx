@@ -21,6 +21,9 @@ export function Pagination({ page, total, curPageCounts }: PaginationProps) {
                     disabled={page === 1}
                     style={{ pointerEvents: "all" }}
                     hx-get={`/api/recipe/page?page=${page - 1}`}
+                    hx-target="#tableContainer"
+                    hx-swap="innerHTML"
+                    hx-indicator="#listLoading"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -44,6 +47,9 @@ export function Pagination({ page, total, curPageCounts }: PaginationProps) {
                     style={{ pointerEvents: "all" }}
                     disabled={PAGE_SIZE * page > total}
                     hx-get={`/api/recipe/page?page=${page + 1}`}
+                    hx-target="#tableContainer"
+                    hx-swap="innerHTML"
+                    hx-indicator="#listLoading"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"

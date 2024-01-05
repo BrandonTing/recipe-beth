@@ -11,6 +11,7 @@ export function getEstimatedTimeText(estimatedTime: number): string {
 
 export async function getRecipesFilteredByIngredients(
     filters: Map<string, number>,
+    page: number,
 ): Promise<{
     recipes: {
         id: string;
@@ -87,7 +88,7 @@ export async function getRecipesFilteredByIngredients(
             ? await db.query.recipes.findMany({
                   orderBy: [desc(recipes.createdAt)],
                   limit: PAGE_SIZE,
-                  offset: 0,
+                  offset: (page - 1) * PAGE_SIZE,
                   where: inArray(
                       recipes.id,
                       filteredRecipes.map((recipe) => recipe.id),
