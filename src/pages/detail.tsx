@@ -7,7 +7,7 @@ import Tabs from "../components/tabs";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { recipes } from "../db/schema";
-import { GetEstimatedTimeText } from "../lib/util";
+import { getEstimatedTimeText } from "../lib/util";
 import { Tags } from "../components/tags";
 
 export const detail = new Elysia().use(ctx).get(
@@ -51,7 +51,7 @@ export const detail = new Elysia().use(ctx).get(
                             {recipeDetail.description}
                             <br />
                             預估時間：
-                            {GetEstimatedTimeText(recipeDetail.estimatedTime)}
+                            {getEstimatedTimeText(recipeDetail.estimatedTime)}
                         </p>
                     </div>
                 </div>

@@ -21,3 +21,5 @@ export const config = {
     env,
     args,
 };
+
+export const PAGE_SIZE = 10;

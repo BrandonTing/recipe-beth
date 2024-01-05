@@ -1,17 +1,13 @@
-import { desc, eq, inArray, like } from "drizzle-orm";
+import { desc, eq, like, sql } from "drizzle-orm";
 import Elysia, { t } from "elysia";
 import { IngredientInput } from "../components/search/ingredient";
 import Table from "../components/table";
 import Button from "../components/ui/button";
 import { ctx } from "../context";
 import { db } from "../db";
-import {
-    recipeIngredients,
-    Recipes,
-    recipes,
-    recipeTags,
-    steps,
-} from "../db/schema";
+import { recipeIngredients, recipes, recipeTags, steps } from "../db/schema";
+import { PAGE_SIZE } from "../config";
+import { getRecipesFilteredByIngredients } from "../lib/util";
 
 export const recipe = new Elysia({
     prefix: "/recipe",
@@ -19,21 +15,43 @@ export const recipe = new Elysia({
     .use(ctx)
     .get(
         "/",
-        async function ({ query: { keyword } }) {
+        async function ({ query: { keyword }, set, log, headers }) {
+            log.info(headers);
+            const [count] = await db
+                .select({
+                    count: sql`count(*)`.mapWith(Number).as("count"),
+                })
+                .from(recipes)
+                .where(like(recipes.title, `%${keyword}%`));
             const filteredRecipes = await db.query.recipes.findMany({
                 where: like(recipes.title, `%${keyword}%`),
                 orderBy: [desc(recipes.createdAt)],
-                // FIXME add pagination
-                limit: 10,
+                limit: PAGE_SIZE,
+                offset: 0,
                 columns: {
                     id: true,
                     title: true,
                     description: true,
                     estimatedTime: true,
                 },
+                with: {
+                    tags: {
+                        columns: {
+                            label: true,
+                        },
+                    },
+                },
             });
-
-            return <Table recipes={filteredRecipes} />;
+            set.headers["HX-Push-Url"] = `/?keyword=${encodeURIComponent(
+                keyword,
+            )}`;
+            return (
+                <Table
+                    page={1}
+                    total={count?.count ?? 0}
+                    recipes={filteredRecipes}
+                />
+            );
         },
         {
             query: t.Object({
@@ -79,8 +97,8 @@ export const recipe = new Elysia({
                         <form
                             id="ingredientForm"
                             class="grid gap-4"
-                            method="POST"
-                            hx-post="/api/recipe/searchByIngredient"
+                            method="GET"
+                            hx-get="/api/recipe/advanceSearch"
                             hx-trigger="submit"
                             hx-target="#advancedSearchModal"
                             hx-swap="delete"
@@ -134,116 +152,52 @@ export const recipe = new Elysia({
 
         return <IngredientInput ingredientsOptions={ingredientsOptions} />;
     })
-    .post(
-        "/searchByIngredient",
-        async function ({ body: { ingredient, amount } }) {
-            const filters = new Map<string, number>();
+    .get(
+        "/advanceSearch",
+        async ({ query: { ingredient, amount }, set }) => {
+            const ingredientFilters = new Map<string, number>();
             if (Array.isArray(ingredient)) {
                 ingredient.forEach((name, i) => {
-                    filters.set(name, (amount as number[])[i]!);
+                    ingredientFilters.set(name, (amount as number[])[i]!);
                 });
             } else {
-                filters.set(ingredient, amount as number);
+                ingredientFilters.set(ingredient, amount as number);
             }
 
-            const rawdRecipes = await db
-                .select()
-                .from(recipes)
-                .leftJoin(
-                    recipeIngredients,
-                    eq(recipeIngredients.recipeID, recipes.id),
-                )
-                .where(inArray(recipeIngredients.name, [...filters.keys()]));
-
-            const filteredRecipesMap = new Map<
-                string,
-                Pick<
-                    Recipes,
-                    "id" | "title" | "description" | "estimatedTime"
-                > & {
-                    ingredients: Record<string, number>;
-                }
-            >();
-            rawdRecipes.forEach((recipe) => {
-                if (recipe.recipe_ingredients) {
-                    if (filteredRecipesMap.has(recipe.recipes.id)) {
-                        const {
-                            id,
-                            ingredients,
-                            title,
-                            description,
-                            estimatedTime,
-                        } = filteredRecipesMap.get(recipe.recipes.id)!;
-                        filteredRecipesMap.set(recipe.recipes.id, {
-                            id,
-                            title,
-                            description,
-                            ingredients: {
-                                ...ingredients,
-                                [recipe.recipe_ingredients?.name]:
-                                    recipe.recipe_ingredients?.amount,
-                            },
-                            estimatedTime,
-                        });
-                    } else {
-                        const { id, title, description, estimatedTime } =
-                            recipe.recipes;
-                        filteredRecipesMap.set(id, {
-                            id,
-                            title,
-                            description,
-                            ingredients: {
-                                [recipe.recipe_ingredients?.name]:
-                                    recipe.recipe_ingredients?.amount,
-                            },
-                            estimatedTime,
-                        });
-                    }
-                }
-            });
-
-            const filteredRecipes = [...filteredRecipesMap.values()].filter(
-                (recipe) => {
-                    let valid = true;
-                    const { ingredients } = recipe;
-                    filters.forEach((value, key) => {
-                        const targetIngredient = ingredients[key];
-                        // 沒有完整條件或數量不足
-                        if (!targetIngredient) {
-                            valid = false;
-                        } else if (targetIngredient > value) {
-                            valid = false;
-                        }
-                    });
-                    return valid;
-                },
+            const { count, recipes } = await getRecipesFilteredByIngredients(
+                ingredientFilters,
+                1,
             );
+
+            const filterEntries = [...ingredientFilters.entries()];
+            const qs = filterEntries
+                .map(
+                    ([name, amount]) => `${encodeURIComponent(name)}_${amount}`,
+                )
+                .join(",");
+
+            set.headers["HX-Push-Url"] = `/?ingredients=${qs}`;
+
             return (
                 <div id="tableContainer" hx-swap-oob="true">
                     <p class="py-2">
                         目前查詢條件：
-                        {[...filters.entries()].map(([name, amount]) => (
+                        {filterEntries.map(([name, amount]) => (
                             <span class="mr-2 rounded border px-2 py-1">
                                 {name}: {amount}
                             </span>
                         ))}
                     </p>
 
-                    <Table recipes={filteredRecipes} />
+                    <Table recipes={recipes} page={1} total={count ?? 0} />
                 </div>
             );
         },
         {
-            body: t.Union([
-                t.Object({
-                    ingredient: t.String(),
-                    amount: t.Numeric(),
-                }),
-                t.Object({
-                    ingredient: t.Array(t.String()),
-                    amount: t.Array(t.Numeric()),
-                }),
-            ]),
+            query: t.Object({
+                ingredient: t.Union([t.String(), t.Array(t.String())]),
+                amount: t.Union([t.Numeric(), t.Array(t.Numeric())]),
+            }),
         },
     )
     .get("/deleteSelf", () => {
@@ -269,6 +223,95 @@ export const recipe = new Elysia({
         {
             params: t.Object({
                 id: t.String(),
+            }),
+        },
+    )
+    .get(
+        "/page",
+        async ({ query: { page }, headers }) => {
+            const currentPageQs = new URLSearchParams(
+                headers["hx-current-url"]?.split("?")[1],
+            );
+
+            if (currentPageQs.has("ingredients")) {
+                // query by ingredients and set page
+                const ingredientFilterQs = currentPageQs.get("ingredients");
+                const ingredientFilters = new Map<string, number>();
+                const filterEntries =
+                    ingredientFilterQs?.split(",").map((ingredientEntry) => {
+                        return ingredientEntry.split("_");
+                    }) ?? [];
+                filterEntries.forEach(([name, amount]) => {
+                    if (name && amount) {
+                        ingredientFilters.set(name, Number(amount));
+                    }
+                });
+                const { count, recipes } =
+                    await getRecipesFilteredByIngredients(
+                        ingredientFilters,
+                        page,
+                    );
+                return (
+                    <>
+                        <p class="py-2">
+                            目前查詢條件：
+                            {filterEntries.map(([name, amount]) => (
+                                <span class="mr-2 rounded border px-2 py-1">
+                                    {name}: {amount}
+                                </span>
+                            ))}
+                        </p>
+
+                        <Table
+                            recipes={recipes}
+                            page={page}
+                            total={count ?? 0}
+                        />
+                    </>
+                );
+            }
+            const keyword = currentPageQs.get("keyword") ?? "";
+            const [count] = await db
+                .select({
+                    count: sql`count(*)`.mapWith(Number).as("count"),
+                })
+                .from(recipes)
+                .where(like(recipes.title, `%${keyword}%`));
+
+            const filteredRecipes = await db.query.recipes.findMany({
+                where: like(recipes.title, `%${keyword}%`),
+                orderBy: [desc(recipes.createdAt)],
+                limit: PAGE_SIZE,
+                offset: (page - 1) * PAGE_SIZE,
+                columns: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    estimatedTime: true,
+                },
+                with: {
+                    tags: {
+                        columns: {
+                            label: true,
+                        },
+                    },
+                },
+            });
+
+            // query by keyword and set page
+            return (
+                <Table
+                    page={page}
+                    total={count?.count ?? 0}
+                    recipes={filteredRecipes}
+                />
+            );
+        },
+        {
+            query: t.Object({
+                page: t.Numeric(),
+                keyword: t.Optional(t.String()),
+                filters: t.Optional(t.String()),
             }),
         },
     );
