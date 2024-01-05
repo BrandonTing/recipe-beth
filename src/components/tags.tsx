@@ -14,13 +14,15 @@ export interface TagsProps {
 export function Tags({ tags }: TagsProps) {
     return (
         <div class="flex gap-1 justify-center">
-            {tags.map(({ label }, i) => {
-                const className = twMerge(
-                    "inline-block h-6 rounded-full px-2 text-xs font-semibold uppercase leading-6 tracking-wide",
-                    TAG_COLOR_OPTIONS[i % 4],
-                );
-                return <span class={className}>{label}</span>;
-            })}
+            {tags
+                .filter((tag) => tag.label !== "")
+                .map(({ label }, i) => {
+                    const className = twMerge(
+                        "inline-block h-6 rounded-full px-2 text-xs font-semibold uppercase leading-6 tracking-wide",
+                        TAG_COLOR_OPTIONS[i % 4],
+                    );
+                    return <span class={className}>{label}</span>;
+                })}
         </div>
     );
 }

@@ -31,7 +31,7 @@ export function TagsInput({ tags = [] }: { tags?: string[] }) {
             </div>
             <input type="text" name="tags" hidden value={tags.join(",")} />
             <div class="flex pt-2">
-                <Tags tags={tags} />
+                <Tags tags={tags.map((tag) => ({ label: tag }))} />
             </div>
         </div>
     );

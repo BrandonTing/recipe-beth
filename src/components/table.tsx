@@ -1,5 +1,5 @@
 import { Recipes } from "../db/schema";
-import { GetEstimatedTimeText } from "../lib/util";
+import { getEstimatedTimeText } from "../lib/util";
 import { Pagination } from "./pagination";
 import { Tags } from "./tags";
 
@@ -56,7 +56,7 @@ export default function ({ recipes, page, total }: IListProps) {
                             </td>
 
                             <td class="px-6 py-4">
-                                {GetEstimatedTimeText(recipe.estimatedTime)}
+                                {getEstimatedTimeText(recipe.estimatedTime)}
                             </td>
                             <td class="px-6 py-4">
                                 <div class="w-6 mx-auto">
