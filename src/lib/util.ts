@@ -73,7 +73,7 @@ export async function getRecipesFilteredByIngredients(
                 // 沒有完整條件或數量不足
                 if (!targetIngredient) {
                     valid = false;
-                } else if (targetIngredient > value) {
+                } else if (targetIngredient < value) {
                     valid = false;
                 }
             });
