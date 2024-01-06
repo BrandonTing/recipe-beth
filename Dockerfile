@@ -24,12 +24,11 @@ RUN apt-get update -qq && \
 COPY --link bun.lockb package.json ./
 RUN bun install --frozen-lockfile --ci
 
-# Generate css file
-RUN bun tw
-
 # Copy application code
 COPY --link . .
 
+# Generate css file
+RUN bun tw
 
 # Final stage for app image
 FROM base
