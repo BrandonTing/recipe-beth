@@ -1,7 +1,7 @@
 import { desc, eq, like, sql } from "drizzle-orm";
 import Elysia, { t } from "elysia";
 import { IngredientInput } from "../components/search/ingredient";
-import Table from "../components/table";
+import Table, { renderTableFromQs } from "../components/table";
 import Button from "../components/ui/button";
 import { ctx } from "../context";
 import { db } from "../db";
@@ -232,86 +232,13 @@ export const recipe = new Elysia({
             const currentPageQs = new URLSearchParams(
                 headers["hx-current-url"]?.split("?")[1],
             );
-
-            if (currentPageQs.has("ingredients")) {
-                // query by ingredients and set page
-                const ingredientFilterQs = currentPageQs.get("ingredients");
-                const ingredientFilters = new Map<string, number>();
-                const filterEntries =
-                    ingredientFilterQs?.split(",").map((ingredientEntry) => {
-                        return ingredientEntry.split("_");
-                    }) ?? [];
-                filterEntries.forEach(([name, amount]) => {
-                    if (name && amount) {
-                        ingredientFilters.set(name, Number(amount));
-                    }
-                });
-                const { count, recipes } =
-                    await getRecipesFilteredByIngredients(
-                        ingredientFilters,
-                        page,
-                    );
-                return (
-                    <>
-                        <p class="py-2">
-                            目前查詢條件：
-                            {filterEntries.map(([name, amount]) => (
-                                <span class="mr-2 rounded border px-2 py-1">
-                                    {name}: {amount}
-                                </span>
-                            ))}
-                        </p>
-
-                        <Table
-                            recipes={recipes}
-                            page={page}
-                            total={count ?? 0}
-                        />
-                    </>
-                );
-            }
-            const keyword = currentPageQs.get("keyword") ?? "";
-            const [count] = await db
-                .select({
-                    count: sql`count(*)`.mapWith(Number).as("count"),
-                })
-                .from(recipes)
-                .where(like(recipes.title, `%${keyword}%`));
-
-            const filteredRecipes = await db.query.recipes.findMany({
-                where: like(recipes.title, `%${keyword}%`),
-                orderBy: [desc(recipes.createdAt)],
-                limit: PAGE_SIZE,
-                offset: (page - 1) * PAGE_SIZE,
-                columns: {
-                    id: true,
-                    title: true,
-                    description: true,
-                    estimatedTime: true,
-                },
-                with: {
-                    tags: {
-                        columns: {
-                            label: true,
-                        },
-                    },
-                },
-            });
-
-            // query by keyword and set page
-            return (
-                <Table
-                    page={page}
-                    total={count?.count ?? 0}
-                    recipes={filteredRecipes}
-                />
-            );
+            return await renderTableFromQs(currentPageQs, page);
         },
         {
             query: t.Object({
                 page: t.Numeric(),
                 keyword: t.Optional(t.String()),
-                filters: t.Optional(t.String()),
+                ingredients: t.Optional(t.String()),
             }),
         },
     );
