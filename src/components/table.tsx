@@ -1,7 +1,13 @@
-import { Recipes } from "../db/schema";
-import { getEstimatedTimeText } from "../lib/util";
+import { desc, like, sql } from "drizzle-orm";
+import { db } from "../db";
+import { Recipes, recipes } from "../db/schema";
+import {
+    getEstimatedTimeText,
+    getRecipesFilteredByIngredients,
+} from "../lib/util";
 import { Pagination } from "./pagination";
 import { Tags } from "./tags";
+import { PAGE_SIZE } from "../config";
 
 interface IListProps {
     recipes: (Pick<
@@ -14,7 +20,7 @@ interface IListProps {
     total: number;
 }
 
-export default function ({ recipes, page, total }: IListProps) {
+export default function Table({ recipes, page, total }: IListProps) {
     if (!recipes.length) {
         return <p>目前尚未登錄任何食譜，踏出成為料理王的第一步吧！</p>;
     }
@@ -90,5 +96,79 @@ export default function ({ recipes, page, total }: IListProps) {
                 total={total}
             />
         </>
+    );
+}
+
+export async function renderTableFromQs(
+    currentPageQs: URLSearchParams,
+    page: number,
+) {
+    if (currentPageQs.has("ingredients")) {
+        // query by ingredients and set page
+        const ingredientFilterQs = currentPageQs.get("ingredients");
+        const ingredientFilters = new Map<string, number>();
+        const filterEntries =
+            ingredientFilterQs?.split(",").map((ingredientEntry) => {
+                return ingredientEntry.split("_");
+            }) ?? [];
+        filterEntries.forEach(([name, amount]) => {
+            if (name && amount) {
+                ingredientFilters.set(name, Number(amount));
+            }
+        });
+        const { count, recipes } = await getRecipesFilteredByIngredients(
+            ingredientFilters,
+            page,
+        );
+        return (
+            <>
+                <p class="py-2">
+                    目前查詢條件：
+                    {filterEntries.map(([name, amount]) => (
+                        <span class="mr-2 rounded border px-2 py-1">
+                            {name}: {amount}
+                        </span>
+                    ))}
+                </p>
+
+                <Table recipes={recipes} page={page} total={count ?? 0} />
+            </>
+        );
+    }
+    const keyword = currentPageQs.get("keyword") ?? "";
+    const [count] = await db
+        .select({
+            count: sql`count(*)`.mapWith(Number).as("count"),
+        })
+        .from(recipes)
+        .where(like(recipes.title, `%${keyword}%`));
+
+    const filteredRecipes = await db.query.recipes.findMany({
+        where: like(recipes.title, `%${keyword}%`),
+        orderBy: [desc(recipes.createdAt)],
+        limit: PAGE_SIZE,
+        offset: (page - 1) * PAGE_SIZE,
+        columns: {
+            id: true,
+            title: true,
+            description: true,
+            estimatedTime: true,
+        },
+        with: {
+            tags: {
+                columns: {
+                    label: true,
+                },
+            },
+        },
+    });
+
+    // query by keyword and set page
+    return (
+        <Table
+            page={page}
+            total={count?.count ?? 0}
+            recipes={filteredRecipes}
+        />
     );
 }
