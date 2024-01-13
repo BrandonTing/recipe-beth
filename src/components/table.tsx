@@ -3,7 +3,7 @@ import { db } from "../db";
 import { Recipes, recipes } from "../db/schema";
 import {
     getEstimatedTimeText,
-    getRecipesFilteredByIngredients,
+    getRecipesFilteredByIngredientsAndTag,
 } from "../lib/util";
 import { Pagination } from "./pagination";
 import { Tags } from "./tags";
@@ -108,16 +108,23 @@ export async function renderTableFromQs(
         const ingredientFilterQs = currentPageQs.get("ingredients");
         const ingredientFilters = new Map<string, number>();
         const filterEntries =
-            ingredientFilterQs?.split(",").map((ingredientEntry) => {
-                return ingredientEntry.split("_");
-            }) ?? [];
+            ingredientFilterQs
+                ?.split(",")
+                .map((ingredientEntry) => {
+                    if (!ingredientEntry) return;
+                    return ingredientEntry.split("_");
+                })
+                .filter(Boolean) ?? [];
         filterEntries.forEach(([name, amount]) => {
             if (name && amount) {
                 ingredientFilters.set(name, Number(amount));
             }
         });
-        const { count, recipes } = await getRecipesFilteredByIngredients(
+        const tag = currentPageQs.get("tag") ?? "";
+        const { count, recipes } = await getRecipesFilteredByIngredientsAndTag(
             ingredientFilters,
+            // FIXME
+            tag,
             page,
         );
         return (
@@ -129,6 +136,11 @@ export async function renderTableFromQs(
                             {name}: {amount}
                         </span>
                     ))}
+                    {tag && (
+                        <span class="mr-2 rounded border px-2 py-1">
+                            Tag: {tag}
+                        </span>
+                    )}
                 </p>
 
                 <Table recipes={recipes} page={page} total={count ?? 0} />
