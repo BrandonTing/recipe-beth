@@ -25,6 +25,20 @@ export async function getRecipesFilteredByIngredientsAndTag(
     }[];
     count: number;
 }> {
+    let where = undefined;
+    if (tag) {
+        where = eq(recipeTags.label, tag);
+    }
+    if (ingredients.size > 0) {
+        if (where) {
+            where = and(
+                where,
+                inArray(recipeIngredients.name, [...ingredients.keys()]),
+            );
+        } else {
+            where = inArray(recipeIngredients.name, [...ingredients.keys()]);
+        }
+    }
     const rawdRecipes = await db
         .select({
             id: recipes.id,
@@ -33,12 +47,7 @@ export async function getRecipesFilteredByIngredientsAndTag(
         .from(recipes)
         .leftJoin(recipeIngredients, eq(recipeIngredients.recipeID, recipes.id))
         .leftJoin(recipeTags, eq(recipeTags.recipeID, recipes.id))
-        .where(
-            and(
-                inArray(recipeIngredients.name, [...ingredients.keys()]),
-                eq(recipeTags.label, tag),
-            ),
-        );
+        .where(where);
 
     const filteredRecipesMap = new Map<
         string,

@@ -61,6 +61,7 @@ export const list = new Elysia().use(ctx).get(
             // page: t.Optional(t.Numeric()),
             keyword: t.Optional(t.String()),
             ingredients: t.Optional(t.String()),
+            tag: t.Optional(t.String()),
         }),
     },
 );

@@ -198,15 +198,11 @@ export const recipe = new Elysia({
             }
 
             const { count, recipes } =
-                ingredientFilters.size > 0
-                    ? await getRecipesFilteredByIngredientsAndTag(
-                          ingredientFilters,
-                          tag,
-                          1,
-                      )
-                    : // TODO  若無傳入特殊條件？
-                      { count: 0, recipes: [] };
-
+                await getRecipesFilteredByIngredientsAndTag(
+                    ingredientFilters,
+                    tag,
+                    1,
+                );
             const filterEntries = [...ingredientFilters.entries()];
             const qs = filterEntries
                 .map(
@@ -214,7 +210,8 @@ export const recipe = new Elysia({
                 )
                 .join(",");
 
-            set.headers["HX-Push-Url"] = `/?ingredients=${qs}`;
+            set.headers["HX-Push-Url"] =
+                `/?ingredients=${qs}&tag=${encodeURIComponent(tag)}`;
 
             return (
                 <div id="tableContainer" hx-swap-oob="true">
