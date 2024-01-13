@@ -3,7 +3,7 @@ import { db } from "../db";
 import { Recipes, recipes } from "../db/schema";
 import {
     getEstimatedTimeText,
-    getRecipesFilteredByIngredients,
+    getRecipesFilteredByIngredientsAndTag,
 } from "../lib/util";
 import { Pagination } from "./pagination";
 import { Tags } from "./tags";
@@ -116,8 +116,10 @@ export async function renderTableFromQs(
                 ingredientFilters.set(name, Number(amount));
             }
         });
-        const { count, recipes } = await getRecipesFilteredByIngredients(
+        const { count, recipes } = await getRecipesFilteredByIngredientsAndTag(
             ingredientFilters,
+            // FIXME
+            "",
             page,
         );
         return (

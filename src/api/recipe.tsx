@@ -1,13 +1,19 @@
-import { desc, eq, like, sql } from "drizzle-orm";
+import { desc, eq, like, not, sql } from "drizzle-orm";
 import Elysia, { t } from "elysia";
 import { IngredientInput } from "../components/search/ingredient";
 import Table, { renderTableFromQs } from "../components/table";
 import Button from "../components/ui/button";
 import { ctx } from "../context";
 import { db } from "../db";
-import { recipeIngredients, recipes, recipeTags, steps } from "../db/schema";
+import {
+    recipeIngredients,
+    recipes,
+    recipeTags,
+    steps,
+    tags,
+} from "../db/schema";
 import { PAGE_SIZE } from "../config";
-import { getRecipesFilteredByIngredients } from "../lib/util";
+import { getRecipesFilteredByIngredientsAndTag } from "../lib/util";
 
 export const recipe = new Elysia({
     prefix: "/recipe",
@@ -15,8 +21,7 @@ export const recipe = new Elysia({
     .use(ctx)
     .get(
         "/",
-        async function ({ query: { keyword }, set, log, headers }) {
-            log.info(headers);
+        async function ({ query: { keyword }, set }) {
             const [count] = await db
                 .select({
                     count: sql`count(*)`.mapWith(Number).as("count"),
@@ -61,7 +66,9 @@ export const recipe = new Elysia({
     )
     .get("/advanced", async function () {
         const ingredientsOptions = await db.query.ingredients.findMany();
-
+        const tagOptions = await db.query.tags.findMany({
+            where: not(eq(tags.label, "")),
+        });
         return (
             <div
                 id="advancedSearchModal"
@@ -103,6 +110,30 @@ export const recipe = new Elysia({
                             hx-target="#advancedSearchModal"
                             hx-swap="delete"
                         >
+                            <div>
+                                <label
+                                    class="px-1 text-base font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                    for="tag"
+                                >
+                                    Tag
+                                </label>
+                                <select
+                                    name="tag"
+                                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                                >
+                                    <option value="" disabled selected="true">
+                                        請選擇查詢tag
+                                    </option>
+
+                                    {tagOptions.map((tag) => {
+                                        return (
+                                            <option value={tag.label}>
+                                                {tag.label}
+                                            </option>
+                                        );
+                                    })}
+                                </select>
+                            </div>
                             <div class="grid grid-cols-2 gap-2">
                                 {/* TODO add search by tags */}
                                 <label
@@ -154,20 +185,27 @@ export const recipe = new Elysia({
     })
     .get(
         "/advanceSearch",
-        async ({ query: { ingredient, amount }, set }) => {
+        async ({ query: { ingredient, amount, tag }, set, log }) => {
+            log.info(tag);
+
             const ingredientFilters = new Map<string, number>();
             if (Array.isArray(ingredient)) {
                 ingredient.forEach((name, i) => {
                     ingredientFilters.set(name, (amount as number[])[i]!);
                 });
-            } else {
+            } else if (ingredient) {
                 ingredientFilters.set(ingredient, amount as number);
             }
 
-            const { count, recipes } = await getRecipesFilteredByIngredients(
-                ingredientFilters,
-                1,
-            );
+            const { count, recipes } =
+                ingredientFilters.size > 0
+                    ? await getRecipesFilteredByIngredientsAndTag(
+                          ingredientFilters,
+                          tag,
+                          1,
+                      )
+                    : // TODO  若無傳入特殊條件？
+                      { count: 0, recipes: [] };
 
             const filterEntries = [...ingredientFilters.entries()];
             const qs = filterEntries
@@ -187,6 +225,11 @@ export const recipe = new Elysia({
                                 {name}: {amount}
                             </span>
                         ))}
+                        {tag && (
+                            <span class="mr-2 rounded border px-2 py-1">
+                                Tag: {tag}
+                            </span>
+                        )}
                     </p>
 
                     <Table recipes={recipes} page={1} total={count ?? 0} />
@@ -195,6 +238,7 @@ export const recipe = new Elysia({
         },
         {
             query: t.Object({
+                tag: t.String(),
                 ingredient: t.Union([t.String(), t.Array(t.String())]),
                 amount: t.Union([t.Numeric(), t.Array(t.Numeric())]),
             }),

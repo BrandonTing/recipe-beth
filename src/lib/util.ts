@@ -1,6 +1,6 @@
-import { desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { db } from "../db";
-import { Recipes, recipeIngredients, recipes } from "../db/schema";
+import { Recipes, recipeIngredients, recipeTags, recipes } from "../db/schema";
 import { PAGE_SIZE } from "../config";
 
 export function getEstimatedTimeText(estimatedTime: number): string {
@@ -9,8 +9,9 @@ export function getEstimatedTimeText(estimatedTime: number): string {
     return `${hour}${estimatedTime % 60} 分鐘`;
 }
 
-export async function getRecipesFilteredByIngredients(
-    filters: Map<string, number>,
+export async function getRecipesFilteredByIngredientsAndTag(
+    ingredients: Map<string, number>,
+    tag: string,
     page: number,
 ): Promise<{
     recipes: {
@@ -31,7 +32,13 @@ export async function getRecipesFilteredByIngredients(
         })
         .from(recipes)
         .leftJoin(recipeIngredients, eq(recipeIngredients.recipeID, recipes.id))
-        .where(inArray(recipeIngredients.name, [...filters.keys()]));
+        .leftJoin(recipeTags, eq(recipeTags.recipeID, recipes.id))
+        .where(
+            and(
+                inArray(recipeIngredients.name, [...ingredients.keys()]),
+                eq(recipeTags.label, tag),
+            ),
+        );
 
     const filteredRecipesMap = new Map<
         string,
@@ -67,9 +74,8 @@ export async function getRecipesFilteredByIngredients(
     const filteredRecipes = [...filteredRecipesMap.values()].filter(
         (recipe) => {
             let valid = true;
-            const { ingredients } = recipe;
-            filters.forEach((value, key) => {
-                const targetIngredient = ingredients[key];
+            ingredients.forEach((value, key) => {
+                const targetIngredient = recipe.ingredients[key];
                 // 沒有完整條件或數量不足
                 if (!targetIngredient) {
                     valid = false;
