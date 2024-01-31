@@ -1,6 +1,6 @@
 import { Elysia, t } from "elysia";
 import { BaseHtml } from "../components/base";
-import { renderTableFromQs } from "../components/table";
+import { renderListFromQs } from "../components/recipeList";
 import Button from "../components/ui/button";
 import { ctx } from "../context";
 
@@ -9,7 +9,7 @@ export const list = new Elysia().use(ctx).get(
     async ({ htmlStream, query }) => {
         const qs = new URLSearchParams(query);
 
-        const table = await renderTableFromQs(qs, 1);
+        const recipeList = await renderListFromQs(qs, 1);
 
         return htmlStream(() => (
             <BaseHtml>
@@ -29,7 +29,7 @@ export const list = new Elysia().use(ctx).get(
                             <Button
                                 hx-get="/api/recipe"
                                 hx-include="input[name='keyword']"
-                                hx-target="#tableContainer"
+                                hx-target="#listContainer"
                                 hx-swap="innerHTML"
                                 hx-indicator="#listLoading"
                             >
@@ -51,7 +51,7 @@ export const list = new Elysia().use(ctx).get(
                     <p id="listLoading" class="hidden [&.htmx-request]:block">
                         loading...
                     </p>
-                    <div id="tableContainer">{table}</div>
+                    <div id="listContainer">{recipeList}</div>
                 </main>
             </BaseHtml>
         ));
