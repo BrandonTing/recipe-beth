@@ -6,20 +6,21 @@ import {
     ReferenceInput,
     StepInput,
 } from "../components/form/inputs";
+import { TagsInput } from "../components/form/tagsInput";
 import { ctx } from "../context";
 import { db } from "../db";
 import {
     Ingredient,
-    ingredients,
     RecipeIngredient,
-    recipeIngredients,
-    recipes,
-    recipeTags,
     Step,
+    ingredients,
+    recipeIngredients,
+    recipeTags,
+    recipes,
     steps,
     tags as tagsTable,
 } from "../db/schema";
-import { TagsInput } from "../components/form/tagsInput";
+import { upload } from "../storage";
 
 export const createNew = new Elysia({
     prefix: "/new",
@@ -38,6 +39,7 @@ export const createNew = new Elysia({
                 stepTitle,
                 stepDescription,
                 tags,
+                image,
             },
             set,
             log,
@@ -108,7 +110,13 @@ export const createNew = new Elysia({
                           description: stepDescription as string,
                       },
                   ];
+
             try {
+                const { error } = await upload(image);
+                if (error) {
+                    throw Error("Failed to create upload image");
+                }
+
                 if (newIngredientKinds.length) {
                     await db.insert(ingredients).values(newIngredientKinds);
                     log.info(
@@ -130,6 +138,7 @@ export const createNew = new Elysia({
                         title,
                         description,
                         estimatedTime,
+                        imageUrl: image.name,
                     })
                     .returning();
                 const recipeID = recipe[0]!.id;
@@ -169,6 +178,9 @@ export const createNew = new Elysia({
                     description: t.String(),
                     estimatedTime: t.Numeric(),
                     tags: t.String(),
+                    image: t.File({
+                        type: "image/jpeg",
+                    }),
                 }),
                 t.Union([
                     t.Object({

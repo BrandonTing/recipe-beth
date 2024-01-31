@@ -3,7 +3,7 @@
   "module": "src/index.tsx",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"bun run liveReload\" \"bun run --hot src/index.tsx\"  ",
+    "dev": "concurrently \"bun run tw:dev\" \"bun run liveReload\" \"bun run --hot src/index.tsx\"  ",
     "liveReload": "bunx beth-stack",
     "start": "bun run src/index.tsx",
     "tw": "bunx tailwindcss -i ./src/styles.css -o ./public/dist/styles.css",
@@ -40,6 +40,7 @@
     "@bogeychan/elysia-logger": "0.0.12",
     "@elysiajs/static": "^0.7.1",
     "@libsql/client": "^0.3.6",
+    "@supabase/supabase-js": "^2.39.3",
     "@t3-oss/env-core": "^0.7.1",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "beth-stack": "0.0.33",

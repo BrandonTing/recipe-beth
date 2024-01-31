@@ -1,14 +1,14 @@
+import { eq } from "drizzle-orm";
 import { Elysia, NotFoundError, t } from "elysia";
 import { BaseHtml } from "../components/base";
-import { ctx } from "../context";
 import Ingredients from "../components/ingredients";
-import Button from "../components/ui/button";
 import Tabs from "../components/tabs";
+import { Tags } from "../components/tags";
+import Button from "../components/ui/button";
+import { ctx } from "../context";
 import { db } from "../db";
-import { eq } from "drizzle-orm";
 import { recipes } from "../db/schema";
 import { getEstimatedTimeText } from "../lib/util";
-import { Tags } from "../components/tags";
 
 export const detail = new Elysia().use(ctx).get(
     "/detail/:id",
@@ -34,6 +34,7 @@ export const detail = new Elysia().use(ctx).get(
                 "Target recipe does not exist! Please try again.",
             );
         }
+
         return htmlStream(() => (
             <BaseHtml>
                 <div class="px-4">

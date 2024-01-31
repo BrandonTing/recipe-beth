@@ -12,10 +12,10 @@ const TabList: Omit<TabProps, "active">[] = [
         label: "步驟",
         type: "steps",
     },
-    // {
-    //   label: "參考資料",
-    //   type: "references"
-    // }
+    {
+        label: "完成圖",
+        type: "image",
+    },
 ];
 
 function Tab({

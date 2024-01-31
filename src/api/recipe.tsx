@@ -1,18 +1,18 @@
 import { desc, eq, like, not, sql } from "drizzle-orm";
 import Elysia, { t } from "elysia";
+import RecipeList, { renderListFromQs } from "../components/recipeList";
 import { IngredientInput } from "../components/search/ingredient";
-import Table, { renderTableFromQs } from "../components/table";
 import Button from "../components/ui/button";
+import { PAGE_SIZE } from "../config";
 import { ctx } from "../context";
 import { db } from "../db";
 import {
     recipeIngredients,
-    recipes,
     recipeTags,
+    recipes,
     steps,
     tags,
 } from "../db/schema";
-import { PAGE_SIZE } from "../config";
 import { getRecipesFilteredByIngredientsAndTag } from "../lib/util";
 
 export const recipe = new Elysia({
@@ -38,6 +38,7 @@ export const recipe = new Elysia({
                     title: true,
                     description: true,
                     estimatedTime: true,
+                    imageUrl: true,
                 },
                 with: {
                     tags: {
@@ -51,7 +52,7 @@ export const recipe = new Elysia({
                 keyword,
             )}`;
             return (
-                <Table
+                <RecipeList
                     page={1}
                     total={count?.count ?? 0}
                     recipes={filteredRecipes}
@@ -135,7 +136,7 @@ export const recipe = new Elysia({
                                 </select>
                             </div>
                             <div class="grid grid-cols-2 gap-2">
-                                {/* TODO add search by tags */}
+                                {/* add search by tags */}
                                 <label
                                     class="px-1 text-base font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                                     for="ingredient"
@@ -214,7 +215,7 @@ export const recipe = new Elysia({
                 `/?ingredients=${qs}&tag=${encodeURIComponent(tag)}`;
 
             return (
-                <div id="tableContainer" hx-swap-oob="true">
+                <div id="listContainer" hx-swap-oob="true">
                     <p class="py-2">
                         目前查詢條件：
                         {filterEntries.map(([name, amount]) => (
@@ -229,7 +230,7 @@ export const recipe = new Elysia({
                         )}
                     </p>
 
-                    <Table recipes={recipes} page={1} total={count ?? 0} />
+                    <RecipeList recipes={recipes} page={1} total={count ?? 0} />
                 </div>
             );
         },
@@ -273,7 +274,7 @@ export const recipe = new Elysia({
             const currentPageQs = new URLSearchParams(
                 headers["hx-current-url"]?.split("?")[1],
             );
-            return await renderTableFromQs(currentPageQs, page);
+            return await renderListFromQs(currentPageQs, page);
         },
         {
             query: t.Object({

@@ -5,6 +5,7 @@ import Steps from "../components/steps";
 import Tabs from "../components/tabs";
 import { db } from "../db";
 import { recipes } from "../db/schema";
+import { getDownloadPath } from "../storage";
 
 export const detail = new Elysia({
     prefix: "/detail",
@@ -27,6 +28,9 @@ export const detail = new Elysia({
                 "Target recipe does not exist! Please try again.",
             );
         }
+        const imageUrl = detail.imageUrl
+            ? getDownloadPath(detail.imageUrl)
+            : "/public/placeholder.svg";
 
         switch (type) {
             case "ingredients":
@@ -51,6 +55,15 @@ export const detail = new Elysia({
                         </div>
                     </>
                 );
+            case "image":
+                return (
+                    <>
+                        <Tabs activeType="image" recipeId={id} />
+                        <div class="w-full pt-2">
+                            <img src={imageUrl} alt="成品圖" />
+                        </div>
+                    </>
+                );
         }
     },
     {
@@ -58,7 +71,7 @@ export const detail = new Elysia({
             type: t.Union([
                 t.Literal("ingredients"),
                 t.Literal("steps"),
-                t.Literal("references"),
+                t.Literal("image"),
             ]),
         }),
         params: t.Object({

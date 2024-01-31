@@ -1,9 +1,9 @@
 import { Elysia } from "elysia";
 import { BaseHtml } from "../components/base";
 import { IngredientInput, StepInput } from "../components/form/inputs";
+import { TagsInput } from "../components/form/tagsInput";
 import Button from "../components/ui/button";
 import { ctx } from "../context";
-import { TagsInput } from "../components/form/tagsInput";
 
 export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
     return htmlStream(() => (
@@ -18,6 +18,7 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
             </div>
             <form
                 class="border-b border-gray-900/10 pb-10"
+                enctype="multipart/form-data"
                 hx-trigger="submit"
                 hx-post="/api/new"
                 hx-swap="none"
@@ -67,6 +68,21 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
 
                         <TagsInput />
                     </div>
+                    <div>
+                        <label
+                            for="image"
+                            class="block text-base font-medium leading-6 text-gray-900"
+                        >
+                            封面圖
+                        </label>
+                        {/* TODO handle file upload  */}
+                        <input
+                            name="image"
+                            type="file"
+                            accept="image/png, image/jpeg"
+                        />
+                    </div>
+
                     <div>
                         <label
                             for="estimatedTime"
