@@ -9,7 +9,7 @@ import { Pagination } from "./pagination";
 interface IRecipeListProps {
     recipes: (Pick<
         Recipes,
-        "id" | "title" | "description" | "estimatedTime"
+        "id" | "title" | "description" | "estimatedTime" | "imageUrl"
     > & {
         tags: { label: string }[] | null;
     })[];
@@ -102,6 +102,7 @@ export async function renderListFromQs(
             title: true,
             description: true,
             estimatedTime: true,
+            imageUrl: true,
         },
         with: {
             tags: {

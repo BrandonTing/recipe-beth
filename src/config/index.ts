@@ -8,8 +8,9 @@ const env = createEnv({
         DATABASE_URL: z.string().min(1),
         DATABASE_AUTH_TOKEN: z.string(),
         NODE_ENV: z.enum(["development", "production"]),
-        UPLOADTHING_SECRET: z.string().min(1),
-        UPLOADTHING_APP_ID: z.string().min(1),
+        SUPABASE_URL: z.string().min(1),
+        SUPABASE_KEY: z.string().min(1),
+        SUPABASE_BUCKET: z.string().min(1),
     },
     runtimeEnv: process.env,
 });

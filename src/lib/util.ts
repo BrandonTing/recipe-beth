@@ -1,7 +1,7 @@
 import { and, desc, eq, inArray } from "drizzle-orm";
+import { PAGE_SIZE } from "../config";
 import { db } from "../db";
 import { Recipes, recipeIngredients, recipeTags, recipes } from "../db/schema";
-import { PAGE_SIZE } from "../config";
 
 export function getEstimatedTimeText(estimatedTime: number): string {
     const hour =
@@ -19,6 +19,7 @@ export async function getRecipesFilteredByIngredientsAndTag(
         title: string;
         description: string;
         estimatedTime: number;
+        imageUrl: string | null;
         tags: {
             label: string;
         }[];
@@ -113,6 +114,7 @@ export async function getRecipesFilteredByIngredientsAndTag(
                       title: true,
                       description: true,
                       estimatedTime: true,
+                      imageUrl: true,
                   },
                   with: {
                       tags: {

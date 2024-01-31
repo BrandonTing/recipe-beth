@@ -4,27 +4,10 @@ import { api } from "./api";
 import { config } from "./config";
 import { index } from "./pages";
 
-import { createRouteHandler } from "uploadthing/server";
-
-import { uploadRouter } from "./api/uploadThing";
-
-const { GET, POST } = createRouteHandler({
-    router: uploadRouter,
-    config: {
-        uploadthingSecret: config.env.UPLOADTHING_SECRET,
-        uploadthingId: config.env.UPLOADTHING_APP_ID,
-    },
-});
-
 const app = new Elysia()
     .use(staticPlugin())
     .use(api)
     .use(index)
-    .group("/api/uploadthing", (app) =>
-        app
-            .post("/", (context) => POST(context.request))
-            .get("/", (context) => GET(context.request)),
-    )
     .onStart(({ log }) => {
         if (log && config.env.NODE_ENV === "production") {
             log.info("Server started");

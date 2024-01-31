@@ -38,6 +38,7 @@ export const recipe = new Elysia({
                     title: true,
                     description: true,
                     estimatedTime: true,
+                    imageUrl: true,
                 },
                 with: {
                     tags: {

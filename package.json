@@ -40,6 +40,7 @@
     "@bogeychan/elysia-logger": "0.0.12",
     "@elysiajs/static": "^0.7.1",
     "@libsql/client": "^0.3.6",
+    "@supabase/supabase-js": "^2.39.3",
     "@t3-oss/env-core": "^0.7.1",
     "@typescript-eslint/eslint-plugin": "^6.17.0",
     "beth-stack": "0.0.33",
@@ -49,7 +50,6 @@
     "pino-pretty": "^10.2.0",
     "tailwind-merge": "^2.2.0",
     "tailwindcss": "^3.3.5",
-    "uploadthing": "^6.3.1",
     "zod": "^3.22.4"
   }
 }

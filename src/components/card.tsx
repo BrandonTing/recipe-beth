@@ -1,18 +1,22 @@
 import Button from "../components/ui/button";
 import { Recipes } from "../db/schema";
 import { getEstimatedTimeText } from "../lib/util";
+import { getDownloadPath } from "../storage";
 
 export default function Card({
     recipe,
 }: {
-    recipe: Pick<Recipes, "id" | "title" | "estimatedTime"> & {
+    recipe: Pick<Recipes, "id" | "title" | "estimatedTime" | "imageUrl"> & {
         tags: { label: string }[] | null;
     };
 }) {
+    const imageUrl = recipe.imageUrl
+        ? getDownloadPath(recipe.imageUrl)
+        : "/public/placeholder.svg";
     return (
         <div class="overflow-hidden rounded shadow-lg" id={`card_${recipe.id}`}>
             <img
-                src="/public/placeholder.svg"
+                src={imageUrl}
                 width="400"
                 height="200"
                 alt="collection-cover"
