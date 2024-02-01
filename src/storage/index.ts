@@ -5,7 +5,7 @@ import { config } from "../config";
 const supabase = createClient(config.env.SUPABASE_URL, config.env.SUPABASE_KEY);
 
 function getFilename(name: string): string {
-    return `/public/${name}`;
+    return `public/${name}`;
 }
 
 export async function upload(file: File) {
@@ -24,6 +24,7 @@ export function getDownloadPath(name: string) {
 }
 
 export function deleteFile(name: string) {
+    console.log(getFilename(name));
     return supabase.storage
         .from(config.env.SUPABASE_BUCKET)
         .remove([getFilename(name)]);

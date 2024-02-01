@@ -14,6 +14,7 @@ import {
     tags,
 } from "../db/schema";
 import { getRecipesFilteredByIngredientsAndTag } from "../lib/util";
+import { deleteFile } from "../storage";
 
 export const recipe = new Elysia({
     prefix: "/recipe",
@@ -247,7 +248,7 @@ export const recipe = new Elysia({
     })
     .post(
         "/remove/:id",
-        async ({ params: { id }, log, set }) => {
+        async ({ params: { id }, body: { image }, log, set }) => {
             try {
                 await db
                     .delete(recipeIngredients)
@@ -255,6 +256,7 @@ export const recipe = new Elysia({
                 await db.delete(recipeTags).where(eq(recipeTags.recipeID, id));
                 await db.delete(steps).where(eq(steps.recipeID, id));
                 await db.delete(recipes).where(eq(recipes.id, id));
+                await deleteFile(image);
                 set.headers["HX-Refresh"] = "true";
             } catch (err) {
                 log.error(err);
@@ -265,6 +267,9 @@ export const recipe = new Elysia({
         {
             params: t.Object({
                 id: t.String(),
+            }),
+            body: t.Object({
+                image: t.String(),
             }),
         },
     )
