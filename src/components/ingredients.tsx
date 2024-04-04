@@ -1,29 +1,39 @@
-import type { Ingredient, RecipeIngredient } from "../db/schema";
+import type { RecipeIngredient } from "../db/schema";
 
-type IngredientItem = RecipeIngredient & {
-    ingredient: Ingredient;
-};
+type IngredientItem = RecipeIngredient;
 function Item({ item }: { item: IngredientItem }) {
     return (
         <p class=" text-gray-500">
-            {item.name} - {item.amount} {item.ingredient.unit}
+            {item.name} - {item.amount}
         </p>
     );
 }
 
 export default function ingredients({
     ingredients,
-    seasonings,
 }: {
     ingredients: IngredientItem[];
-    seasonings: IngredientItem[];
 }) {
+    const { main, seasonings } = ingredients.reduce(
+        (pre, cur) => {
+            if (cur.type === "Ingredient") {
+                pre.main.push(cur);
+                return pre;
+            }
+            pre.seasonings.push(cur);
+            return pre;
+        },
+        {
+            main: [],
+            seasonings: [],
+        } as Record<"main" | "seasonings", IngredientItem[]>,
+    );
     return (
         <div class="flex flex-col space-y-4 ">
             <section class="flex gap-6">
                 <h2 class="w-40 text-xl font-bold">主要原料：</h2>
                 <div>
-                    {ingredients.map((ingredient) => (
+                    {main.map((ingredient) => (
                         <Item item={ingredient} />
                     ))}
                 </div>

@@ -1,6 +1,6 @@
-import { migrate } from "drizzle-orm/libsql/migrator";
-import { drizzle } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
+import { drizzle } from "drizzle-orm/libsql";
+import { migrate } from "drizzle-orm/libsql/migrator";
 import { config } from "../src/config";
 
 export const client = createClient({
@@ -23,4 +23,4 @@ async function main() {
     }
 }
 
-main();
+await main();

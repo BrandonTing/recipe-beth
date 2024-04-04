@@ -7,10 +7,7 @@ import Card from "./card";
 import { Pagination } from "./pagination";
 
 interface IRecipeListProps {
-    recipes: (Pick<
-        Recipes,
-        "id" | "title" | "description" | "estimatedTime" | "imageUrl"
-    > & {
+    recipes: (Pick<Recipes, "id" | "title" | "imageUrl"> & {
         tags: { label: string }[] | null;
     })[];
     page: number;
@@ -100,8 +97,6 @@ export async function renderListFromQs(
         columns: {
             id: true,
             title: true,
-            description: true,
-            estimatedTime: true,
             imageUrl: true,
         },
         with: {

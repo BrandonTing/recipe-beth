@@ -37,8 +37,6 @@ export const recipe = new Elysia({
                 columns: {
                     id: true,
                     title: true,
-                    description: true,
-                    estimatedTime: true,
                     imageUrl: true,
                 },
                 with: {
@@ -67,7 +65,9 @@ export const recipe = new Elysia({
         },
     )
     .get("/advanced", async function () {
-        const ingredientsOptions = await db.query.ingredients.findMany();
+        const ingredientsOptions = await db
+            .selectDistinct({ name: recipeIngredients.name })
+            .from(recipeIngredients);
         const tagOptions = await db.query.tags.findMany({
             where: not(eq(tags.label, "")),
         });
@@ -181,7 +181,9 @@ export const recipe = new Elysia({
         );
     })
     .get("/ingredientInput", async function () {
-        const ingredientsOptions = await db.query.ingredients.findMany();
+        const ingredientsOptions = await db
+            .selectDistinct({ name: recipeIngredients.name })
+            .from(recipeIngredients);
 
         return <IngredientInput ingredientsOptions={ingredientsOptions} />;
     })

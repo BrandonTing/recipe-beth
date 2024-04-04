@@ -74,10 +74,40 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
                             原料
                         </label>
                         <div class="mt-2">
-                            <IngredientInput />
+                            <IngredientInput type="ingredient" />
                             <button
                                 hx-target="previous fieldset"
-                                hx-get="/api/new/ingredientInput"
+                                hx-get="/api/new/ingredientInput?type=ingredient"
+                                hx-trigger="click"
+                                hx-swap="afterend"
+                                type="button"
+                                class="flex w-full  justify-center rounded-lg border border-dashed border-gray-300 bg-white py-2.5 text-base font-medium text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:hover:border-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-700 max-w-60"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="16"
+                                    height="16"
+                                    fill="currentColor"
+                                    class="bi bi-plus"
+                                    viewBox="0 0 16 16"
+                                >
+                                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            for="seasonings"
+                            class="block text-base font-medium leading-6 text-gray-900"
+                        >
+                            調味料
+                        </label>
+                        <div class="mt-2">
+                            <IngredientInput type="seasoning" />
+                            <button
+                                hx-target="previous fieldset"
+                                hx-get="/api/new/ingredientInput?type=seasoning"
                                 hx-trigger="click"
                                 hx-swap="afterend"
                                 type="button"

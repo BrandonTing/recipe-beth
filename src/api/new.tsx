@@ -1,8 +1,7 @@
-import { eq, inArray, like } from "drizzle-orm";
+import { like } from "drizzle-orm";
 import Elysia, { t } from "elysia";
 import {
     IngredientInput,
-    IngredientUnitInput,
     ReferenceInput,
     StepInput,
 } from "../components/form/inputs";
@@ -10,10 +9,8 @@ import { TagsInput } from "../components/form/tagsInput";
 import { ctx } from "../context";
 import { db } from "../db";
 import {
-    Ingredient,
     RecipeIngredient,
     Step,
-    ingredients,
     recipeIngredients,
     recipeTags,
     recipes,
@@ -31,90 +28,73 @@ export const createNew = new Elysia({
         async function ({
             body: {
                 title,
-                ingredientAmount,
                 ingredientName,
-                ingredientUnit,
-                stepTitle,
+                ingredientAmount,
+                seasoningName,
+                seasoningAmount,
+                stepDescription,
                 tags,
                 image,
             },
             set,
             log,
         }) {
-            let newIngredientKinds: Ingredient[] = [];
-            if (ingredientUnit) {
-                if (!Array.isArray(ingredientName)) {
-                    newIngredientKinds = [
-                        {
-                            name: ingredientName,
-                            unit: ingredientUnit as string,
-                        },
-                    ];
-                } else {
-                    // get existing ingredients
-                    const existingIngredientKinds =
-                        await db.query.ingredients.findMany({
-                            columns: {
-                                name: true,
-                            },
-                            where: inArray(ingredients.name, ingredientName),
-                        });
-
-                    newIngredientKinds = ingredientName
-                        .filter(
-                            (name) =>
-                                !existingIngredientKinds.find(
-                                    (kind) => kind.name === name,
-                                ),
-                        )
-                        .map((name, i) => {
-                            const unit = (ingredientUnit as string[])[i];
-                            if (!unit) return;
-                            return {
-                                name,
-                                unit,
-                            };
-                        })
-                        .filter(Boolean);
-                }
-            }
             const newRecipeIngredients: Omit<RecipeIngredient, "recipeID">[] =
                 Array.isArray(ingredientName)
                     ? ingredientName.map((name, i) => {
-                        return {
-                            name,
-                            amount: Number(
-                                (ingredientAmount as number[])[i]!,
-                            ),
-                        };
-                    })
+                          return {
+                              name,
+                              amount: Number(
+                                  (ingredientAmount as number[])[i]!,
+                              ),
+                          };
+                      })
                     : [
-                        {
-                            name: ingredientName,
-                            amount: Number(ingredientAmount),
-                        },
-                    ];
-            const recipeSteps: Step[] = Array.isArray(stepTitle)
-                ? stepTitle.map((title) => {
-                    return {
-                        title,
-                    };
-                })
+                          {
+                              name: ingredientName,
+                              amount: Number(ingredientAmount),
+                          },
+                      ];
+            const newRecipeSeasonings: Omit<RecipeIngredient, "recipeID">[] =
+                Array.isArray(seasoningName)
+                    ? seasoningName.map((name, i) => {
+                          return {
+                              name,
+                              amount: Number((seasoningAmount as number[])[i]!),
+                              type: "Seasoning",
+                          };
+                      })
+                    : [
+                          {
+                              name: seasoningName,
+                              amount: Number(seasoningAmount),
+                              type: "Seasoning",
+                          },
+                      ];
+
+            const recipeSteps: Step[] = Array.isArray(stepDescription)
+                ? stepDescription.map((description) => {
+                      return {
+                          description,
+                      };
+                  })
                 : [
-                    {
-                        title: stepTitle,
-                    },
-                ];
+                      {
+                          description: stepDescription,
+                      },
+                  ];
 
             try {
-                if (newIngredientKinds.length) {
-                    await db.insert(ingredients).values(newIngredientKinds);
-                    log.info(
-                        `added new ingredients: ${newIngredientKinds
-                            .map((kind) => kind.name + ": " + kind.unit)
-                            .join(", ")}`,
-                    );
-                }
+                const recipe = await db
+                    .insert(recipes)
+                    .values({
+                        title,
+                        imageUrl: image?.name ?? "",
+                    })
+                    .returning();
+
+                const recipeID = recipe[0]!.id;
+                log.info(`created new recipe ${title}, id: ${recipeID}`);
                 if (tags) {
                     const tagList = tags
                         .split(",")
@@ -133,21 +113,21 @@ export const createNew = new Elysia({
                     );
                     log.info("created new recipeTags");
                 }
-                const recipe = await db
-                    .insert(recipes)
-                    .values({
-                        title,
-                        imageUrl: image?.name ?? "",
-                    })
-                    .returning();
-                const recipeID = recipe[0]!.id;
-                log.info(`created new recipe ${title}, id: ${recipeID}`);
-                await db.insert(recipeIngredients).values(
-                    newRecipeIngredients.map((ingre) => ({
+                const newIngredientsRecords = newRecipeIngredients
+                    .map((ingre) => ({
                         ...ingre,
                         recipeID,
-                    })),
-                );
+                    }))
+                    .concat(
+                        newRecipeSeasonings.map((ingre) => ({
+                            ...ingre,
+                            recipeID,
+                        })),
+                    );
+
+                await db
+                    .insert(recipeIngredients)
+                    .values(newIngredientsRecords);
                 log.info("created new recipeIngredients");
 
                 await db.insert(steps).values(
@@ -198,29 +178,42 @@ export const createNew = new Elysia({
                 t.Optional(
                     t.Union([
                         t.Object({
-                            ingredientUnit: t.Optional(t.Array(t.String())),
+                            seasoningName: t.Array(t.String()),
+                            seasoningAmount: t.Array(t.Numeric()),
                         }),
                         t.Object({
-                            ingredientUnit: t.Optional(t.String()),
+                            seasoningName: t.String(),
+                            seasoningAmount: t.Numeric(),
                         }),
                     ]),
                 ),
                 t.Optional(
                     t.Union([
                         t.Object({
-                            stepTitle: t.Array(t.String()),
+                            stepDescription: t.Array(t.String()),
                         }),
                         t.Object({
-                            stepTitle: t.String(),
+                            stepDescription: t.String(),
                         }),
                     ]),
                 ),
             ]),
         },
     )
-    .get("/ingredientInput", async function () {
-        return <IngredientInput />;
-    })
+    .get(
+        "/ingredientInput",
+        async function ({ query: { type } }) {
+            return <IngredientInput type={type} />;
+        },
+        {
+            query: t.Object({
+                type: t.Union([
+                    t.Literal("ingredient"),
+                    t.Literal("seasoning"),
+                ]),
+            }),
+        },
+    )
     .get("/referenceInput", async function () {
         return <ReferenceInput />;
     })
@@ -232,33 +225,6 @@ export const createNew = new Elysia({
         {
             query: t.Object({
                 count: t.Numeric(),
-            }),
-        },
-    )
-    .get(
-        "/ingredient/unit",
-        async function ({ query: { ingredientName }, log }) {
-            try {
-                // FIXME 如果有兩個input 僅有一個加上新unit會出錯
-                const ingredient = await db.query.ingredients.findFirst({
-                    where: eq(ingredients.name, ingredientName),
-                });
-                const unit = ingredient?.unit ?? "";
-                console.log(unit);
-                return (
-                    <IngredientUnitInput
-                        value={unit}
-                        disabled={Boolean(unit)}
-                    />
-                );
-            } catch (err) {
-                log.error(err);
-                return <IngredientUnitInput value="" />;
-            }
-        },
-        {
-            query: t.Object({
-                ingredientName: t.String(),
             }),
         },
     )
