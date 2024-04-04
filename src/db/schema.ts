@@ -17,7 +17,7 @@ export const steps = sqliteTable("steps", {
     id: text("id")
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
-    title: text("title").notNull(),
+    description: text("description").notNull(),
     recipeID: text("recipe_id").references(() => recipes.id),
 });
 

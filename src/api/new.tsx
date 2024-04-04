@@ -30,7 +30,7 @@ export const createNew = new Elysia({
                 title,
                 ingredientAmount,
                 ingredientName,
-                stepTitle,
+                stepDescription,
                 tags,
                 image,
             },
@@ -53,15 +53,15 @@ export const createNew = new Elysia({
                               amount: Number(ingredientAmount),
                           },
                       ];
-            const recipeSteps: Step[] = Array.isArray(stepTitle)
-                ? stepTitle.map((title) => {
+            const recipeSteps: Step[] = Array.isArray(stepDescription)
+                ? stepDescription.map((description) => {
                       return {
-                          title,
+                          description,
                       };
                   })
                 : [
                       {
-                          title: stepTitle,
+                          description: stepDescription,
                       },
                   ];
 
@@ -159,10 +159,10 @@ export const createNew = new Elysia({
                 t.Optional(
                     t.Union([
                         t.Object({
-                            stepTitle: t.Array(t.String()),
+                            stepDescription: t.Array(t.String()),
                         }),
                         t.Object({
-                            stepTitle: t.String(),
+                            stepDescription: t.String(),
                         }),
                     ]),
                 ),
