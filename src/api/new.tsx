@@ -1,8 +1,7 @@
-import { eq, inArray, like } from "drizzle-orm";
+import { like } from "drizzle-orm";
 import Elysia, { t } from "elysia";
 import {
     IngredientInput,
-    IngredientUnitInput,
     ReferenceInput,
     StepInput,
 } from "../components/form/inputs";
@@ -10,10 +9,8 @@ import { TagsInput } from "../components/form/tagsInput";
 import { ctx } from "../context";
 import { db } from "../db";
 import {
-    Ingredient,
     RecipeIngredient,
     Step,
-    ingredients,
     recipeIngredients,
     recipeTags,
     recipes,
@@ -33,7 +30,6 @@ export const createNew = new Elysia({
                 title,
                 ingredientAmount,
                 ingredientName,
-                ingredientUnit,
                 stepTitle,
                 tags,
                 image,
@@ -41,43 +37,6 @@ export const createNew = new Elysia({
             set,
             log,
         }) {
-            let newIngredientKinds: Ingredient[] = [];
-            if (ingredientUnit) {
-                if (!Array.isArray(ingredientName)) {
-                    newIngredientKinds = [
-                        {
-                            name: ingredientName,
-                            unit: ingredientUnit as string,
-                        },
-                    ];
-                } else {
-                    // get existing ingredients
-                    const existingIngredientKinds =
-                        await db.query.ingredients.findMany({
-                            columns: {
-                                name: true,
-                            },
-                            where: inArray(ingredients.name, ingredientName),
-                        });
-
-                    newIngredientKinds = ingredientName
-                        .filter(
-                            (name) =>
-                                !existingIngredientKinds.find(
-                                    (kind) => kind.name === name,
-                                ),
-                        )
-                        .map((name, i) => {
-                            const unit = (ingredientUnit as string[])[i];
-                            if (!unit) return;
-                            return {
-                                name,
-                                unit,
-                            };
-                        })
-                        .filter(Boolean);
-                }
-            }
             const newRecipeIngredients: Omit<RecipeIngredient, "recipeID">[] =
                 Array.isArray(ingredientName)
                     ? ingredientName.map((name, i) => {
@@ -107,14 +66,6 @@ export const createNew = new Elysia({
                   ];
 
             try {
-                if (newIngredientKinds.length) {
-                    await db.insert(ingredients).values(newIngredientKinds);
-                    log.info(
-                        `added new ingredients: ${newIngredientKinds
-                            .map((kind) => kind.name + ": " + kind.unit)
-                            .join(", ")}`,
-                    );
-                }
                 if (tags) {
                     const tagList = tags
                         .split(",")
@@ -232,33 +183,6 @@ export const createNew = new Elysia({
         {
             query: t.Object({
                 count: t.Numeric(),
-            }),
-        },
-    )
-    .get(
-        "/ingredient/unit",
-        async function ({ query: { ingredientName }, log }) {
-            try {
-                // FIXME 如果有兩個input 僅有一個加上新unit會出錯
-                const ingredient = await db.query.ingredients.findFirst({
-                    where: eq(ingredients.name, ingredientName),
-                });
-                const unit = ingredient?.unit ?? "";
-                console.log(unit);
-                return (
-                    <IngredientUnitInput
-                        value={unit}
-                        disabled={Boolean(unit)}
-                    />
-                );
-            } catch (err) {
-                log.error(err);
-                return <IngredientUnitInput value="" />;
-            }
-        },
-        {
-            query: t.Object({
-                ingredientName: t.String(),
             }),
         },
     )

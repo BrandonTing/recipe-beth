@@ -37,5 +37,6 @@
     "prettier.config.js",
     "src",
     "./reset.d.ts",
+    "drizzle"
   ]
 }

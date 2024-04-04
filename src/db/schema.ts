@@ -6,10 +6,6 @@ export const recipes = sqliteTable("recipes", {
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
     title: text("title").notNull(),
-    description: text("description").notNull().default(""),
-    estimatedTime: integer("estimated_time", { mode: "number" })
-        .notNull()
-        .default(0),
     imageUrl: text("image_url").default(""),
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
@@ -22,26 +18,21 @@ export const steps = sqliteTable("steps", {
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
     title: text("title").notNull(),
-    description: text("description").notNull().default(""),
     recipeID: text("recipe_id").references(() => recipes.id),
 });
 
 export type Step = InferInsertModel<typeof steps>;
 
-export const ingredients = sqliteTable("ingredients", {
-    name: text("name").notNull().primaryKey(),
-    unit: text("unit").notNull(),
-});
-
-export type Ingredient = InferInsertModel<typeof ingredients>;
-
 export const recipeIngredients = sqliteTable("recipe_ingredients", {
     id: text("id")
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
-    name: text("name")
-        .references(() => ingredients.name)
-        .notNull(),
+    name: text("name").notNull(),
+    type: text("type", {
+        enum: ["Ingredient", "Seasoning"],
+    })
+        .notNull()
+        .default("Ingredient"),
     recipeID: text("recipe_id")
         .references(() => recipes.id)
         .notNull(),
@@ -83,20 +74,12 @@ export const stepRelations = relations(steps, ({ one }) => ({
     }),
 }));
 
-export const ingredientRelations = relations(ingredients, ({ many }) => ({
-    recipeIngredients: many(recipeIngredients),
-}));
-
 export const recipeIngredientRelations = relations(
     recipeIngredients,
     ({ one }) => ({
         recipe: one(recipes, {
             fields: [recipeIngredients.recipeID],
             references: [recipes.id],
-        }),
-        ingredient: one(ingredients, {
-            fields: [recipeIngredients.name],
-            references: [ingredients.name],
         }),
     }),
 );

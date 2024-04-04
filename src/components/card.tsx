@@ -1,12 +1,11 @@
 import Button from "../components/ui/button";
 import { Recipes } from "../db/schema";
-import { getEstimatedTimeText } from "../lib/util";
 import { getDownloadPath } from "../storage";
 
 export default function Card({
     recipe,
 }: {
-    recipe: Pick<Recipes, "id" | "title" | "estimatedTime" | "imageUrl"> & {
+    recipe: Pick<Recipes, "id" | "title" | "imageUrl"> & {
         tags: { label: string }[] | null;
     };
 }) {
@@ -25,9 +24,6 @@ export default function Card({
             />
             <div class="px-6 py-4">
                 <div class="mb-2 text-xl font-bold">{recipe.title}</div>
-                <p class="text-base">
-                    {getEstimatedTimeText(recipe.estimatedTime)}
-                </p>
                 <div class="mt-2 flex justify-between">
                     <div class="flex gap-1">
                         {recipe.tags?.length && recipe.tags?.length > 0
