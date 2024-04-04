@@ -1,12 +1,10 @@
-import type { Ingredient, RecipeIngredient } from "../db/schema";
+import type { RecipeIngredient } from "../db/schema";
 
-type IngredientItem = RecipeIngredient & {
-    ingredient: Ingredient;
-};
+type IngredientItem = RecipeIngredient;
 function Item({ item }: { item: IngredientItem }) {
     return (
         <p class=" text-gray-500">
-            {item.name} - {item.amount} {item.ingredient.unit}
+            {item.name} - {item.amount}
         </p>
     );
 }

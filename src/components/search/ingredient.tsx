@@ -1,9 +1,7 @@
-import { Ingredient } from "../../db/schema";
-
 export function IngredientInput({
     ingredientsOptions,
 }: {
-    ingredientsOptions: Ingredient[];
+    ingredientsOptions: { name: string }[];
 }) {
     return (
         <>
@@ -14,9 +12,7 @@ export function IngredientInput({
                 <option value="">請選擇原料</option>
                 {/* fetch ingredients from db */}
                 {ingredientsOptions.map((option) => (
-                    <option value={option.name}>
-                        {option.name}({option.unit})
-                    </option>
+                    <option value={option.name}>{option.name}</option>
                 ))}
             </select>
 

@@ -74,10 +74,10 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
                             原料
                         </label>
                         <div class="mt-2">
-                            <IngredientInput />
+                            <IngredientInput type="ingredient" />
                             <button
                                 hx-target="previous fieldset"
-                                hx-get="/api/new/ingredientInput"
+                                hx-get="/api/new/ingredientInput?type=ingredient"
                                 hx-trigger="click"
                                 hx-swap="afterend"
                                 type="button"
@@ -104,10 +104,10 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
                             調味料
                         </label>
                         <div class="mt-2">
-                            <IngredientInput />
+                            <IngredientInput type="seasoning" />
                             <button
                                 hx-target="previous fieldset"
-                                hx-get="/api/new/seasoningInput"
+                                hx-get="/api/new/ingredientInput?type=seasoning"
                                 hx-trigger="click"
                                 hx-swap="afterend"
                                 type="button"

@@ -28,8 +28,10 @@ export const createNew = new Elysia({
         async function ({
             body: {
                 title,
-                ingredientAmount,
                 ingredientName,
+                ingredientAmount,
+                seasoningName,
+                seasoningAmount,
                 stepDescription,
                 tags,
                 image,
@@ -53,6 +55,23 @@ export const createNew = new Elysia({
                               amount: Number(ingredientAmount),
                           },
                       ];
+            const newRecipeSeasonings: Omit<RecipeIngredient, "recipeID">[] =
+                Array.isArray(seasoningName)
+                    ? seasoningName.map((name, i) => {
+                          return {
+                              name,
+                              amount: Number((seasoningAmount as number[])[i]!),
+                              type: "Seasoning",
+                          };
+                      })
+                    : [
+                          {
+                              name: seasoningName,
+                              amount: Number(seasoningAmount),
+                              type: "Seasoning",
+                          },
+                      ];
+
             const recipeSteps: Step[] = Array.isArray(stepDescription)
                 ? stepDescription.map((description) => {
                       return {
@@ -66,6 +85,16 @@ export const createNew = new Elysia({
                   ];
 
             try {
+                const recipe = await db
+                    .insert(recipes)
+                    .values({
+                        title,
+                        imageUrl: image?.name ?? "",
+                    })
+                    .returning();
+
+                const recipeID = recipe[0]!.id;
+                log.info(`created new recipe ${title}, id: ${recipeID}`);
                 if (tags) {
                     const tagList = tags
                         .split(",")
@@ -84,21 +113,21 @@ export const createNew = new Elysia({
                     );
                     log.info("created new recipeTags");
                 }
-                const recipe = await db
-                    .insert(recipes)
-                    .values({
-                        title,
-                        imageUrl: image?.name ?? "",
-                    })
-                    .returning();
-                const recipeID = recipe[0]!.id;
-                log.info(`created new recipe ${title}, id: ${recipeID}`);
-                await db.insert(recipeIngredients).values(
-                    newRecipeIngredients.map((ingre) => ({
+                const newIngredientsRecords = newRecipeIngredients
+                    .map((ingre) => ({
                         ...ingre,
                         recipeID,
-                    })),
-                );
+                    }))
+                    .concat(
+                        newRecipeSeasonings.map((ingre) => ({
+                            ...ingre,
+                            recipeID,
+                        })),
+                    );
+
+                await db
+                    .insert(recipeIngredients)
+                    .values(newIngredientsRecords);
                 log.info("created new recipeIngredients");
 
                 await db.insert(steps).values(
@@ -149,10 +178,12 @@ export const createNew = new Elysia({
                 t.Optional(
                     t.Union([
                         t.Object({
-                            ingredientUnit: t.Optional(t.Array(t.String())),
+                            seasoningName: t.Array(t.String()),
+                            seasoningAmount: t.Array(t.Numeric()),
                         }),
                         t.Object({
-                            ingredientUnit: t.Optional(t.String()),
+                            seasoningName: t.String(),
+                            seasoningAmount: t.Numeric(),
                         }),
                     ]),
                 ),
@@ -169,9 +200,20 @@ export const createNew = new Elysia({
             ]),
         },
     )
-    .get("/ingredientInput", async function () {
-        return <IngredientInput />;
-    })
+    .get(
+        "/ingredientInput",
+        async function ({ query: { type } }) {
+            return <IngredientInput type={type} />;
+        },
+        {
+            query: t.Object({
+                type: t.Union([
+                    t.Literal("ingredient"),
+                    t.Literal("seasoning"),
+                ]),
+            }),
+        },
+    )
     .get("/referenceInput", async function () {
         return <ReferenceInput />;
     })

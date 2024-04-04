@@ -15,11 +15,7 @@ export const detail = new Elysia({
         const detail = await db.query.recipes.findFirst({
             where: eq(recipes.id, id),
             with: {
-                ingredients: {
-                    with: {
-                        ingredient: true,
-                    },
-                },
+                ingredients: true,
                 steps: true,
             },
         });

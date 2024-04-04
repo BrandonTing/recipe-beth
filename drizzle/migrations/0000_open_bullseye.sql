@@ -6,9 +6,9 @@ CREATE TABLE `ingredients` (
 CREATE TABLE `recipe_ingredients` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
+	`type` text DEFAULT 'Ingredient' NOT NULL, 
 	`recipe_id` text NOT NULL,
 	`amount` integer NOT NULL,
-	FOREIGN KEY (`name`) REFERENCES `ingredients`(`name`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`recipe_id`) REFERENCES `recipes`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
