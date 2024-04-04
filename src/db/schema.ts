@@ -6,9 +6,11 @@ export const recipes = sqliteTable("recipes", {
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
     title: text("title").notNull(),
-    description: text("description").notNull(),
-    estimatedTime: integer("estimated_time", { mode: "number" }).notNull(),
-    imageUrl: text("image_url"),
+    description: text("description").notNull().default(""),
+    estimatedTime: integer("estimated_time", { mode: "number" })
+        .notNull()
+        .default(0),
+    imageUrl: text("image_url").default(""),
     createdAt: integer("created_at", { mode: "timestamp" })
         .notNull()
         .$defaultFn(() => new Date()),
@@ -20,7 +22,7 @@ export const steps = sqliteTable("steps", {
         .primaryKey()
         .$defaultFn(() => crypto.randomUUID()),
     title: text("title").notNull(),
-    description: text("description").notNull(),
+    description: text("description").notNull().default(""),
     recipeID: text("recipe_id").references(() => recipes.id),
 });
 

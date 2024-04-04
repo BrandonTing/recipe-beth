@@ -31,13 +31,10 @@ export const createNew = new Elysia({
         async function ({
             body: {
                 title,
-                description,
-                estimatedTime,
                 ingredientAmount,
                 ingredientName,
                 ingredientUnit,
                 stepTitle,
-                stepDescription,
                 tags,
                 image,
             },
@@ -84,39 +81,32 @@ export const createNew = new Elysia({
             const newRecipeIngredients: Omit<RecipeIngredient, "recipeID">[] =
                 Array.isArray(ingredientName)
                     ? ingredientName.map((name, i) => {
-                          return {
-                              name,
-                              amount: Number(
-                                  (ingredientAmount as number[])[i]!,
-                              ),
-                          };
-                      })
+                        return {
+                            name,
+                            amount: Number(
+                                (ingredientAmount as number[])[i]!,
+                            ),
+                        };
+                    })
                     : [
-                          {
-                              name: ingredientName,
-                              amount: Number(ingredientAmount),
-                          },
-                      ];
+                        {
+                            name: ingredientName,
+                            amount: Number(ingredientAmount),
+                        },
+                    ];
             const recipeSteps: Step[] = Array.isArray(stepTitle)
-                ? stepTitle.map((title, i) => {
-                      return {
-                          title,
-                          description: stepTitle[i]!,
-                      };
-                  })
+                ? stepTitle.map((title) => {
+                    return {
+                        title,
+                    };
+                })
                 : [
-                      {
-                          title: stepTitle,
-                          description: stepDescription as string,
-                      },
-                  ];
+                    {
+                        title: stepTitle,
+                    },
+                ];
 
             try {
-                const { error } = await upload(image);
-                if (error) {
-                    throw Error("Failed to create upload image");
-                }
-
                 if (newIngredientKinds.length) {
                     await db.insert(ingredients).values(newIngredientKinds);
                     log.info(
@@ -125,20 +115,29 @@ export const createNew = new Elysia({
                             .join(", ")}`,
                     );
                 }
-                const tagList = tags.split(",").map((tag) => ({ label: tag }));
-                if (tagList.length) {
-                    await db
-                        .insert(tagsTable)
-                        .values(tagList)
-                        .onConflictDoNothing();
+                if (tags) {
+                    const tagList = tags
+                        .split(",")
+                        .map((tag) => ({ label: tag }));
+                    if (tagList.length) {
+                        await db
+                            .insert(tagsTable)
+                            .values(tagList)
+                            .onConflictDoNothing();
+                    }
+                    await db.insert(recipeTags).values(
+                        tagList.map((tag) => ({
+                            ...tag,
+                            recipeID,
+                        })),
+                    );
+                    log.info("created new recipeTags");
                 }
                 const recipe = await db
                     .insert(recipes)
                     .values({
                         title,
-                        description,
-                        estimatedTime,
-                        imageUrl: image.name,
+                        imageUrl: image?.name ?? "",
                     })
                     .returning();
                 const recipeID = recipe[0]!.id;
@@ -150,13 +149,7 @@ export const createNew = new Elysia({
                     })),
                 );
                 log.info("created new recipeIngredients");
-                await db.insert(recipeTags).values(
-                    tagList.map((tag) => ({
-                        ...tag,
-                        recipeID,
-                    })),
-                );
-                log.info("created new recipeTags");
+
                 await db.insert(steps).values(
                     recipeSteps.map((step) => ({
                         ...step,
@@ -164,7 +157,15 @@ export const createNew = new Elysia({
                     })),
                 );
                 log.info("created new steps");
+                if (!image) {
+                    set.headers["HX-Redirect"] = "/";
+                    return;
+                }
 
+                const { error } = await upload(image);
+                if (error) {
+                    throw Error("Failed to create upload image");
+                }
                 set.headers["HX-Redirect"] = "/";
             } catch (err) {
                 log.error(`[create new recipe] error: ${err as string}`);
@@ -175,41 +176,45 @@ export const createNew = new Elysia({
             body: t.Intersect([
                 t.Object({
                     title: t.String(),
-                    description: t.String(),
-                    estimatedTime: t.Numeric(),
-                    tags: t.String(),
-                    image: t.File({
-                        type: "image/jpeg",
-                    }),
+                    tags: t.Optional(t.String()),
+                    image: t.Optional(
+                        t.File({
+                            type: "image/jpeg",
+                        }),
+                    ),
                 }),
-                t.Union([
-                    t.Object({
-                        ingredientName: t.Array(t.String()),
-                        ingredientAmount: t.Array(t.Numeric()),
-                    }),
-                    t.Object({
-                        ingredientName: t.String(),
-                        ingredientAmount: t.Numeric(),
-                    }),
-                ]),
-                t.Union([
-                    t.Object({
-                        ingredientUnit: t.Optional(t.Array(t.String())),
-                    }),
-                    t.Object({
-                        ingredientUnit: t.Optional(t.String()),
-                    }),
-                ]),
-                t.Union([
-                    t.Object({
-                        stepTitle: t.Array(t.String()),
-                        stepDescription: t.Array(t.String()),
-                    }),
-                    t.Object({
-                        stepTitle: t.String(),
-                        stepDescription: t.String(),
-                    }),
-                ]),
+                t.Optional(
+                    t.Union([
+                        t.Object({
+                            ingredientName: t.Array(t.String()),
+                            ingredientAmount: t.Array(t.Numeric()),
+                        }),
+                        t.Object({
+                            ingredientName: t.String(),
+                            ingredientAmount: t.Numeric(),
+                        }),
+                    ]),
+                ),
+                t.Optional(
+                    t.Union([
+                        t.Object({
+                            ingredientUnit: t.Optional(t.Array(t.String())),
+                        }),
+                        t.Object({
+                            ingredientUnit: t.Optional(t.String()),
+                        }),
+                    ]),
+                ),
+                t.Optional(
+                    t.Union([
+                        t.Object({
+                            stepTitle: t.Array(t.String()),
+                        }),
+                        t.Object({
+                            stepTitle: t.String(),
+                        }),
+                    ]),
+                ),
             ]),
         },
     )

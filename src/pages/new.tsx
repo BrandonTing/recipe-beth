@@ -41,23 +41,6 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
                             />
                         </div>
                     </div>
-
-                    <div>
-                        <label
-                            for="description"
-                            class="block text-base font-medium leading-6 text-gray-900"
-                        >
-                            描述
-                        </label>
-                        <div class="mt-2">
-                            <textarea
-                                placeholder="請簡單描述這份食譜"
-                                name="description"
-                                id="description"
-                                class="block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            />
-                        </div>
-                    </div>
                     <div>
                         <label
                             for="tags"
@@ -75,30 +58,12 @@ export const createNew = new Elysia().use(ctx).get("/new", ({ htmlStream }) => {
                         >
                             封面圖
                         </label>
-                        {/* TODO handle file upload  */}
+                        {/*  handle file upload  */}
                         <input
                             name="image"
                             type="file"
                             accept="image/png, image/jpeg"
                         />
-                    </div>
-
-                    <div>
-                        <label
-                            for="estimatedTime"
-                            class="block text-base font-medium leading-6 text-gray-900"
-                        >
-                            預估時間
-                        </label>
-                        <div class="mt-2">
-                            <input
-                                placeholder="預估花費時間（分鐘）"
-                                type="number"
-                                min="0"
-                                name="estimatedTime"
-                                class="mb-2 block w-full rounded-md border-0 px-2 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            />
-                        </div>
                     </div>
 
                     <div>
