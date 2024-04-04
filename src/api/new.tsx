@@ -81,30 +81,30 @@ export const createNew = new Elysia({
             const newRecipeIngredients: Omit<RecipeIngredient, "recipeID">[] =
                 Array.isArray(ingredientName)
                     ? ingredientName.map((name, i) => {
-                        return {
-                            name,
-                            amount: Number(
-                                (ingredientAmount as number[])[i]!,
-                            ),
-                        };
-                    })
+                          return {
+                              name,
+                              amount: Number(
+                                  (ingredientAmount as number[])[i]!,
+                              ),
+                          };
+                      })
                     : [
-                        {
-                            name: ingredientName,
-                            amount: Number(ingredientAmount),
-                        },
-                    ];
+                          {
+                              name: ingredientName,
+                              amount: Number(ingredientAmount),
+                          },
+                      ];
             const recipeSteps: Step[] = Array.isArray(stepTitle)
                 ? stepTitle.map((title) => {
-                    return {
-                        title,
-                    };
-                })
+                      return {
+                          title,
+                      };
+                  })
                 : [
-                    {
-                        title: stepTitle,
-                    },
-                ];
+                      {
+                          title: stepTitle,
+                      },
+                  ];
 
             try {
                 if (newIngredientKinds.length) {
