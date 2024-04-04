@@ -35,10 +35,7 @@ export const detail = new Elysia({
                     <>
                         <Tabs activeType="ingredients" recipeId={id} />
                         <div class="w-full pt-2">
-                            <Ingredients
-                                ingredients={detail.ingredients}
-                                seasonings={[]}
-                            />
+                            <Ingredients ingredients={detail.ingredients} />
                         </div>
                     </>
                 );

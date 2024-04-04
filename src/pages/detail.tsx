@@ -8,7 +8,6 @@ import Button from "../components/ui/button";
 import { ctx } from "../context";
 import { db } from "../db";
 import { recipes } from "../db/schema";
-import { getEstimatedTimeText } from "../lib/util";
 
 export const detail = new Elysia().use(ctx).get(
     "/detail/:id",
@@ -16,11 +15,7 @@ export const detail = new Elysia().use(ctx).get(
         const recipeDetail = await db.query.recipes.findFirst({
             where: eq(recipes.id, id),
             with: {
-                ingredients: {
-                    with: {
-                        ingredient: true,
-                    },
-                },
+                ingredients: true,
                 steps: true,
                 tags: {
                     columns: {
@@ -48,21 +43,12 @@ export const detail = new Elysia().use(ctx).get(
                     </div>
                     <div class="mt-1 text-lg text-gray-500 text-center">
                         <Tags tags={recipeDetail.tags} />
-                        <p>
-                            {recipeDetail.description}
-                            <br />
-                            預估時間：
-                            {getEstimatedTimeText(recipeDetail.estimatedTime)}
-                        </p>
                     </div>
                 </div>
                 <div id="contentContainer">
                     <Tabs activeType="ingredients" recipeId={id} />
                     <div class="pt-2 w-full">
-                        <Ingredients
-                            ingredients={recipeDetail.ingredients}
-                            seasonings={[]}
-                        />
+                        <Ingredients ingredients={recipeDetail.ingredients} />
                     </div>
                 </div>
             </BaseHtml>
